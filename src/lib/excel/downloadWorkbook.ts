@@ -11,5 +11,6 @@ export const downloadWorkbook = async (workbook: Workbook, fileName: string): Pr
   link.download = `${fileName}.xlsx`;
   link.click();
 
-  URL.revokeObjectURL(url);
+  // Revoking on the next tick gives Safari time to start the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 };

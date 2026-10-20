@@ -6,6 +6,11 @@ type ClassroomState = {
   classrooms: Classroom[];
 };
 
+type SaveClassroomPayload = {
+  name: string;
+  studentNames: string[];
+};
+
 type SetStudentsPayload = {
   classroomId: string;
   studentNames: string[];
@@ -18,16 +23,27 @@ const initialState: ClassroomState = {
 const toStudents = (studentNames: string[]): Student[] =>
   studentNames.map((name) => ({ id: nanoid(), name }));
 
+const isSameName = (first: string, second: string): boolean =>
+  first.localeCompare(second, 'pt-BR', { sensitivity: 'base' }) === 0;
+
 const classroomSlice = createSlice({
   name: 'classroom',
   initialState,
   reducers: {
-    addClassroom: {
+    /** Creates the classroom, or replaces the students of the one that already has this name. */
+    saveClassroom: {
       reducer: (state, action: PayloadAction<Classroom>) => {
+        const existing = state.classrooms.find(({ name }) => isSameName(name, action.payload.name));
+
+        if (existing) {
+          existing.students = action.payload.students;
+          return;
+        }
+
         state.classrooms.push(action.payload);
       },
-      prepare: (name: string, studentNames: string[] = []) => ({
-        payload: { id: nanoid(), name, students: toStudents(studentNames) },
+      prepare: ({ name, studentNames }: SaveClassroomPayload) => ({
+        payload: { id: nanoid(), name: name.trim(), students: toStudents(studentNames) },
       }),
     },
     removeClassroom: (state, action: PayloadAction<string>) => {
@@ -51,6 +67,6 @@ const classroomSlice = createSlice({
   },
 });
 
-export const { addClassroom, removeClassroom, setStudents } = classroomSlice.actions;
+export const { saveClassroom, removeClassroom, setStudents } = classroomSlice.actions;
 export const { selectClassrooms } = classroomSlice.selectors;
 export const classroomReducer = classroomSlice.reducer;
