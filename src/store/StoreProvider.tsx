@@ -13,7 +13,7 @@ type StoreProviderProps = {
 export const StoreProvider = ({ children }: StoreProviderProps) => {
   const [store] = useState(makeStore);
 
-  // Rehydrating after mount keeps the first client render identical to the server HTML.
+  // Saved state may arrive while parts of the page are still hydrating: read it with usePersistedSelector.
   useEffect(() => {
     persistStore(store);
   }, [store]);

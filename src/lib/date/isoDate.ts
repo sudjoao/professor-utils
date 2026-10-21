@@ -6,6 +6,13 @@ export type IsoDate = string;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+const longDateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
 const monthYearFormatter = new Intl.DateTimeFormat('pt-BR', {
   month: 'long',
   year: 'numeric',
@@ -45,6 +52,10 @@ export const getWeekday = (isoDate: IsoDate): Weekday => toUtcDate(isoDate).getU
 
 export const formatDayMonth = (isoDate: IsoDate): string =>
   `${isoDate.slice(8, 10)}/${isoDate.slice(5, 7)}`;
+
+/** `2022-04-28` → `28 de abril de 2022`. */
+export const formatLongDate = (isoDate: IsoDate): string =>
+  longDateFormatter.format(toUtcDate(isoDate));
 
 export const formatMonthYear = (isoDate: IsoDate): string =>
   monthYearFormatter.format(toUtcDate(isoDate));

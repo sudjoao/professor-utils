@@ -1,21 +1,21 @@
-import type { Workbook } from 'exceljs';
 import { useState } from 'react';
 
-import { downloadWorkbook } from '@/lib/excel/downloadWorkbook';
+import { downloadBlob } from '@/lib/files/downloadBlob';
 
-type WorkbookExportOptions = {
+type FileExportOptions = {
   errors: string[];
+  /** Full file name, extension included. */
   fileName: string;
-  /** Builds the workbook lazily, so ExcelJS (heavy) is only downloaded when the teacher exports. */
-  loadWorkbook: () => Promise<Workbook>;
+  /** Builds the file lazily, so heavy libraries (ExcelJS, docx) only load when the teacher exports. */
+  buildFile: () => Promise<Blob>;
 };
 
-export const useWorkbookExport = ({ errors, fileName, loadWorkbook }: WorkbookExportOptions) => {
+export const useFileExport = ({ errors, fileName, buildFile }: FileExportOptions) => {
   const [hasTriedExport, setHasTriedExport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState('');
 
-  const exportWorkbook = async () => {
+  const exportFile = async () => {
     setHasTriedExport(true);
     setExportError('');
 
@@ -25,10 +25,10 @@ export const useWorkbookExport = ({ errors, fileName, loadWorkbook }: WorkbookEx
 
     setIsExporting(true);
     try {
-      await downloadWorkbook(await loadWorkbook(), fileName);
+      downloadBlob(await buildFile(), fileName);
     } catch (error) {
       console.error(error);
-      setExportError('Não foi possível gerar a planilha. Tente novamente.');
+      setExportError('Não foi possível gerar o arquivo. Tente novamente.');
     } finally {
       setIsExporting(false);
     }
@@ -39,6 +39,6 @@ export const useWorkbookExport = ({ errors, fileName, loadWorkbook }: WorkbookEx
     visibleErrors: hasTriedExport ? errors : [],
     isExporting,
     exportError,
-    exportWorkbook,
+    exportFile,
   };
 };

@@ -7,20 +7,21 @@ import { GradeColumnsField } from '@/features/grades/components/GradeColumnsFiel
 import { GradeColumnsPreview } from '@/features/grades/components/GradeColumnsPreview';
 import { GradeSettingsField } from '@/features/grades/components/GradeSettingsField';
 import { useGradesForm } from '@/features/grades/hooks/useGradesForm';
-import { useWorkbookExport } from '@/lib/excel/useWorkbookExport';
+import { workbookToBlob } from '@/lib/excel/workbookToBlob';
+import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
 
 export const GradesForm = () => {
   const { values, updateValues, sheetData, errors, summaryColumnTitle } = useGradesForm();
 
-  const { visibleErrors, isExporting, exportError, exportWorkbook } = useWorkbookExport({
+  const { visibleErrors, isExporting, exportError, exportFile } = useFileExport({
     errors,
-    fileName: toFileName('Lista de notas', values.classroomName),
-    loadWorkbook: async () => {
+    fileName: `${toFileName('Lista de notas', values.classroomName)}.xlsx`,
+    buildFile: async () => {
       const { buildGradesWorkbook } =
         await import('@/features/grades/services/buildGradesWorkbook');
-      return buildGradesWorkbook(sheetData);
+      return workbookToBlob(buildGradesWorkbook(sheetData));
     },
   });
 
@@ -76,7 +77,8 @@ export const GradesForm = () => {
             errors={visibleErrors}
             isExporting={isExporting}
             exportError={exportError}
-            onExport={exportWorkbook}
+            downloadLabel="Baixar planilha (.xlsx)"
+            onExport={exportFile}
           />
         </CardContent>
       </Card>

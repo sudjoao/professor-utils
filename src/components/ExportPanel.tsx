@@ -8,6 +8,7 @@ type ExportPanelProps = {
   errors: string[];
   isExporting: boolean;
   exportError: string;
+  downloadLabel: string;
   onExport: () => void;
 };
 
@@ -16,6 +17,7 @@ export const ExportPanel = ({
   errors,
   isExporting,
   exportError,
+  downloadLabel,
   onExport,
 }: ExportPanelProps) => (
   <div className="space-y-4">
@@ -36,7 +38,7 @@ export const ExportPanel = ({
 
     <Button size="lg" disabled={isExporting} onClick={onExport}>
       <Download data-icon="inline-start" />
-      {isExporting ? 'Gerando planilha...' : 'Baixar planilha (.xlsx)'}
+      {isExporting ? 'Gerando arquivo...' : downloadLabel}
     </Button>
   </div>
 );

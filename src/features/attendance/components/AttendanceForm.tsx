@@ -11,7 +11,8 @@ import { MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
 import type { ColumnMode } from '@/features/attendance/types';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
-import { useWorkbookExport } from '@/lib/excel/useWorkbookExport';
+import { workbookToBlob } from '@/lib/excel/workbookToBlob';
+import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
 
@@ -19,13 +20,13 @@ export const AttendanceForm = () => {
   const form = useAttendanceForm();
   const { values, sheetData, pageCount } = form;
 
-  const { visibleErrors, isExporting, exportError, exportWorkbook } = useWorkbookExport({
+  const { visibleErrors, isExporting, exportError, exportFile } = useFileExport({
     errors: form.errors,
-    fileName: toFileName('Lista de chamada', values.classroomName),
-    loadWorkbook: async () => {
+    fileName: `${toFileName('Lista de chamada', values.classroomName)}.xlsx`,
+    buildFile: async () => {
       const { buildAttendanceWorkbook } =
         await import('@/features/attendance/services/buildAttendanceWorkbook');
-      return buildAttendanceWorkbook(sheetData);
+      return workbookToBlob(buildAttendanceWorkbook(sheetData));
     },
   });
 
@@ -111,7 +112,8 @@ export const AttendanceForm = () => {
             errors={visibleErrors}
             isExporting={isExporting}
             exportError={exportError}
-            onExport={exportWorkbook}
+            downloadLabel="Baixar planilha (.xlsx)"
+            onExport={exportFile}
           />
         </CardContent>
       </Card>

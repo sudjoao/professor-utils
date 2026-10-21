@@ -4,16 +4,16 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 ## Funcionalidades planejadas
 
-- [ ] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada com a quantidade de aulas escolhida pelo professor
-- [ ] **Lista de notas**: planilha para lançar as notas das avaliações da turma
-- [ ] **Modelos de relatórios**: modelos de relatórios descritivos sobre os alunos
+- [x] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada por datas (um ou vários períodos, escolhendo os dias da semana e removendo feriados) ou por quantidade de aulas. A lista cabe na largura de uma folha A4 deitada; o que passar disso vai para novas páginas
+- [x] **Lista de notas**: planilha para lançar as notas, com colunas por quantidade ("Nota 1", "Nota 2"...) ou pelo título de cada avaliação, coluna final de média ou soma calculada pelo Excel e validação de 0 até a nota máxima
+- [x] **Relatórios (RAv – Registro de Avaliação)**: gera em Word (`.docx`) o Formulário 1 da SEEDF para a turma inteira, um aluno por página, com cabeçalho (brasão), dados da escola, turma, turno, bimestre, dias letivos, local/data e matrículas já preenchidos. O professor só escreve a avaliação e o total de faltas; opcionalmente, um texto comum com `[ALUNO]` é repetido para cada aluno com o nome dele. Os dados da escola ficam salvos no navegador
 
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router) + TypeScript
 - [Redux Toolkit](https://redux-toolkit.js.org) + [redux-persist](https://github.com/rt2zz/redux-persist) (dados salvos no `localStorage`, sem backend por enquanto)
 - [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-- [ExcelJS](https://github.com/exceljs/exceljs) para gerar as planilhas `.xlsx` no navegador
+- [ExcelJS](https://github.com/exceljs/exceljs) e [docx](https://docx.js.org) para gerar `.xlsx` e `.docx` no navegador
 - [Vitest](https://vitest.dev) para testes
 - Deploy na [Vercel](https://vercel.com)
 
@@ -41,17 +41,20 @@ pnpm dev          # http://localhost:3000
 src/
   app/                  # rotas (App Router): só compõem a página, sem regra de negócio
   features/             # um módulo por funcionalidade
-    classroom/          # domínio compartilhado: turmas e alunos (slice do Redux)
+    classroom/          # domínio compartilhado: turmas e alunos (slice do Redux),
+                        #   card "Turma e alunos" e layout base das planilhas (classSheet)
     attendance/         # lista de chamada
     grades/             # lista de notas
-    reports/            # relatórios
+    reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts
       components/       #   componentes React da feature
       services/         #   lógica pura (ex.: montar a planilha), sem React, fácil de testar
   components/
+    ExportPanel.tsx     # resumo, erros e botão de download usados pelos formulários
+    OptionButtons.tsx   # grupo de botões de escolha única (bimestre, turno, cálculo...)
     layout/             # header, container de página etc.
     ui/                 # componentes gerados pelo shadcn (não editar à mão)
   config/tools.ts       # lista de ferramentas (título, descrição, rota, ícone)
-  lib/                  # utilitários genéricos (texto, excel, cn)
+  lib/                  # utilitários genéricos (texto, datas, excel, arquivos, cn)
   store/                # configuração do Redux, hooks tipados e Provider
 ```
 

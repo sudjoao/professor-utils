@@ -25,7 +25,8 @@ export const TOOLS = {
   reports: {
     href: '/reports',
     title: 'Relatórios de alunos',
-    description: 'Crie modelos de relatórios descritivos sobre o desempenho dos alunos.',
+    description:
+      'Gere o Registro de Avaliação (RAv) de toda a turma em Word, com os dados de cada aluno já preenchidos.',
     icon: FileText,
   },
 } satisfies Record<string, Tool>;

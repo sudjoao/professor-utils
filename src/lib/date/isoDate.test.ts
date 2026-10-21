@@ -4,6 +4,7 @@ import {
   daysBetween,
   eachDayOfRange,
   formatDayMonth,
+  formatLongDate,
   formatMonthYear,
   getWeekday,
   groupByMonth,
@@ -55,6 +56,8 @@ describe('date helpers', () => {
   it('formats dates in pt-BR', () => {
     expect(formatDayMonth('2026-03-02')).toBe('02/03');
     expect(formatMonthYear('2026-03-02')).toBe('março de 2026');
+    expect(formatLongDate('2022-04-28')).toBe('28 de abril de 2022');
+    expect(formatLongDate('2022-05-01')).toBe('1 de maio de 2022');
   });
 
   it('groups dates by month', () => {

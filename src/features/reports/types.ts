@@ -1,0 +1,60 @@
+import type { ClassFormValues } from '@/features/classroom/types';
+import type { IsoDate } from '@/lib/date/isoDate';
+
+export type Shift = 'morning' | 'afternoon' | 'fullTime';
+
+export type Term = 1 | 2 | 3 | 4;
+
+/** School data that rarely changes, kept in the browser between one term and the next. */
+export type ReportSettings = {
+  regionalCoordination: string;
+  schoolName: string;
+  stage: string;
+  grade: string;
+  shift: Shift;
+  term: Term;
+  schoolDays: number;
+  city: string;
+  teacherRegistration: string;
+  coordinatorRegistration: string;
+  /** Uploaded header image as a data URL; `null` uses the default DF coat of arms. */
+  headerImage: string | null;
+};
+
+export type ReportFormValues = ClassFormValues &
+  ReportSettings & {
+    schoolYear: string;
+    documentDate: IsoDate;
+    commonText: string;
+  };
+
+export type StudentReport = {
+  name: string;
+  /** Evaluation paragraphs; empty when the teacher will write everything in Word. */
+  paragraphs: string[];
+};
+
+export type ReportDocumentData = {
+  schoolYear: string;
+  stage: string;
+  regionalCoordination: string;
+  schoolName: string;
+  grade: string;
+  classroomName: string;
+  shift: Shift;
+  teacherName: string;
+  term: Term;
+  schoolDays: number;
+  /** Place and date already formatted, e.g. `Gama/DF, 28 de abril de 2022.` */
+  placeAndDate: string;
+  teacherRegistration: string;
+  coordinatorRegistration: string;
+  students: StudentReport[];
+};
+
+export type HeaderImage = {
+  data: ArrayBuffer;
+  type: 'png' | 'jpg';
+  width: number;
+  height: number;
+};

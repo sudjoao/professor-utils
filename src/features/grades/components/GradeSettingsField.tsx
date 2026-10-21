@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { OptionButtons } from '@/components/OptionButtons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MAX_GRADE_LIMIT, SUMMARY_OPTIONS } from '@/features/grades/constants';
@@ -12,19 +12,11 @@ export const GradeSettingsField = ({ summary, maxGrade, onChange }: GradeSetting
   <div className="space-y-6">
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium">Coluna calculada no final</legend>
-      <div className="flex flex-wrap gap-1">
-        {SUMMARY_OPTIONS.map(({ value, label }) => (
-          <Button
-            key={value}
-            size="sm"
-            variant={summary === value ? 'default' : 'outline'}
-            aria-pressed={summary === value}
-            onClick={() => onChange({ summary: value })}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
+      <OptionButtons
+        options={SUMMARY_OPTIONS}
+        value={summary}
+        onChange={(value) => onChange({ summary: value })}
+      />
       <p className="text-xs text-muted-foreground">
         A planilha calcula sozinha conforme você lança as notas.
       </p>

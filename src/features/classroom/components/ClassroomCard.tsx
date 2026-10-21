@@ -3,16 +3,23 @@ import { ClassInfoFields } from '@/features/classroom/components/ClassInfoFields
 import { SavedClassrooms } from '@/features/classroom/components/SavedClassrooms';
 import { StudentsField } from '@/features/classroom/components/StudentsField';
 import { toClassFormValues } from '@/features/classroom/services/classForm';
-import type { ClassFormValues } from '@/features/classroom/types';
+import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
 
 type ClassroomCardProps = {
   title: string;
   values: ClassFormValues;
   studentNames: string[];
+  hiddenFields?: (keyof ClassInfo)[];
   onChange: (changes: Partial<ClassFormValues>) => void;
 };
 
-export const ClassroomCard = ({ title, values, studentNames, onChange }: ClassroomCardProps) => (
+export const ClassroomCard = ({
+  title,
+  values,
+  studentNames,
+  hiddenFields,
+  onChange,
+}: ClassroomCardProps) => (
   <Card>
     <CardHeader>
       <CardTitle>{title}</CardTitle>
@@ -25,6 +32,7 @@ export const ClassroomCard = ({ title, values, studentNames, onChange }: Classro
         classroomName={values.classroomName}
         subject={values.subject}
         teacherName={values.teacherName}
+        hiddenFields={hiddenFields}
         onChange={onChange}
       />
       <StudentsField

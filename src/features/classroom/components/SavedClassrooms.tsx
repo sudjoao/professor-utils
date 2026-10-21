@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/select';
 import { saveClassroom, selectClassrooms } from '@/features/classroom/classroomSlice';
 import type { Classroom } from '@/features/classroom/types';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch, usePersistedSelector } from '@/store/hooks';
+
+const NO_CLASSROOMS: Classroom[] = [];
 
 type SavedClassroomsProps = {
   classroomName: string;
@@ -20,7 +22,7 @@ type SavedClassroomsProps = {
 
 export const SavedClassrooms = ({ classroomName, studentNames, onLoad }: SavedClassroomsProps) => {
   const dispatch = useAppDispatch();
-  const classrooms = useAppSelector(selectClassrooms);
+  const classrooms = usePersistedSelector(selectClassrooms, NO_CLASSROOMS);
   const [savedMessage, setSavedMessage] = useState('');
 
   const canSave = classroomName.trim().length > 0 && studentNames.length > 0;
