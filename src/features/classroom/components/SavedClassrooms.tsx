@@ -23,11 +23,17 @@ const NO_CLASSROOMS: Classroom[] = [];
 
 type SavedClassroomsProps = {
   classroomName: string;
+  subject: string;
   studentNames: string[];
   onLoad: (classroom: Classroom) => void;
 };
 
-export const SavedClassrooms = ({ classroomName, studentNames, onLoad }: SavedClassroomsProps) => {
+export const SavedClassrooms = ({
+  classroomName,
+  subject,
+  studentNames,
+  onLoad,
+}: SavedClassroomsProps) => {
   const dispatch = useAppDispatch();
   const classrooms = usePersistedSelector(selectClassrooms, NO_CLASSROOMS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -60,7 +66,7 @@ export const SavedClassrooms = ({ classroomName, studentNames, onLoad }: SavedCl
   };
 
   const handleSave = () => {
-    dispatch(saveClassroom({ name: trimmedName, studentNames }));
+    dispatch(saveClassroom({ name: trimmedName, subject, studentNames }));
     setStatusMessage(
       `Turma "${trimmedName}" salva neste computador. Da próxima vez, é só escolher na lista "Usar uma turma salva".`,
     );

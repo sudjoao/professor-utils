@@ -9,6 +9,7 @@ type ClassroomState = {
 
 type SaveClassroomPayload = {
   name: string;
+  subject: string;
   studentNames: string[];
 };
 
@@ -28,20 +29,26 @@ const classroomSlice = createSlice({
   name: 'classroom',
   initialState,
   reducers: {
-    /** Creates the classroom, or replaces the students of the one that already has this name. */
+    /** Creates the classroom, or replaces subject and students of the one that already has this name. */
     saveClassroom: {
       reducer: (state, action: PayloadAction<Classroom>) => {
         const existing = state.classrooms.find(({ name }) => isSameName(name, action.payload.name));
 
         if (existing) {
+          existing.subject = action.payload.subject;
           existing.students = action.payload.students;
           return;
         }
 
         state.classrooms.push(action.payload);
       },
-      prepare: ({ name, studentNames }: SaveClassroomPayload) => ({
-        payload: { id: nanoid(), name: name.trim(), students: toStudents(studentNames) },
+      prepare: ({ name, subject, studentNames }: SaveClassroomPayload) => ({
+        payload: {
+          id: nanoid(),
+          name: name.trim(),
+          subject: subject.trim(),
+          students: toStudents(studentNames),
+        },
       }),
     },
     removeClassroom: (state, action: PayloadAction<string>) => {

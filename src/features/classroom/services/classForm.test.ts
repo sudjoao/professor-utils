@@ -32,20 +32,25 @@ describe('getClassInfo', () => {
 });
 
 describe('toClassFormValues', () => {
-  it('fills the form with the saved classroom', () => {
-    const classroom = {
-      id: '1',
-      name: '7º A',
-      students: [
-        { id: 'a', name: 'Ana' },
-        { id: 'b', name: 'Bruno' },
-      ],
-    };
+  const classroom: Classroom = {
+    id: '1',
+    name: '7º A',
+    students: [
+      { id: 'a', name: 'Ana' },
+      { id: 'b', name: 'Bruno' },
+    ],
+  };
 
-    expect(toClassFormValues(classroom)).toEqual({
+  it('fills the form with the saved classroom', () => {
+    expect(toClassFormValues({ ...classroom, subject: 'Matemática' })).toEqual({
       classroomName: '7º A',
+      subject: 'Matemática',
       studentsText: 'Ana\nBruno',
     });
+  });
+
+  it('leaves the subject blank for classrooms saved without one', () => {
+    expect(toClassFormValues(classroom).subject).toBe('');
   });
 });
 

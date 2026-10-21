@@ -6,15 +6,18 @@ import { buildAttendanceSheetData } from '@/features/attendance/services/buildAt
 import { buildLessonDates, fillEmptyDates } from '@/features/attendance/services/buildLessonDates';
 import { validateAttendanceForm } from '@/features/attendance/services/validateAttendanceForm';
 import type { AttendanceFormValues, DateRange } from '@/features/attendance/types';
-import { INITIAL_CLASS_FORM_VALUES } from '@/features/classroom/services/classForm';
+import { useClassDraft } from '@/features/classroom/hooks/useClassDraft';
+import type { ClassFormValues } from '@/features/classroom/types';
 import type { IsoDate } from '@/lib/date/isoDate';
 import { useToday } from '@/lib/date/useToday';
 import { BUSINESS_DAYS, type Weekday } from '@/lib/date/weekdays';
 
 type DateRangeChanges = Partial<Pick<DateRange, 'start' | 'end'>>;
 
-const INITIAL_VALUES: AttendanceFormValues = {
-  ...INITIAL_CLASS_FORM_VALUES,
+/** What only this form uses; the class and students come from the shared draft. */
+type LessonValues = Omit<AttendanceFormValues, keyof ClassFormValues>;
+
+const INITIAL_VALUES: LessonValues = {
   columnMode: 'dates',
   dateRanges: [{ id: 'initial-range', start: '', end: '' }],
   weekdays: BUSINESS_DAYS,
@@ -26,23 +29,26 @@ const toggleItem = <T>(items: T[], item: T): T[] =>
   items.includes(item) ? items.filter((current) => current !== item) : [...items, item];
 
 export const useAttendanceForm = () => {
-  const [rawValues, setValues] = useState<AttendanceFormValues>(INITIAL_VALUES);
+  const { classDraft, splitChanges } = useClassDraft();
+  const [lessonValues, setValues] = useState<LessonValues>(INITIAL_VALUES);
   const today = useToday();
 
   // What the teacher sees and what goes to the sheet: blank dates already count as today.
-  const values = useMemo(
-    () =>
-      today
-        ? {
-            ...rawValues,
-            dateRanges: rawValues.dateRanges.map((range) => fillEmptyDates(range, today)),
-          }
-        : rawValues,
-    [rawValues, today],
+  const values = useMemo<AttendanceFormValues>(
+    () => ({
+      ...classDraft,
+      ...lessonValues,
+      dateRanges: today
+        ? lessonValues.dateRanges.map((range) => fillEmptyDates(range, today))
+        : lessonValues.dateRanges,
+    }),
+    [classDraft, lessonValues, today],
   );
 
-  const updateValues = (changes: Partial<AttendanceFormValues>) =>
-    setValues((current) => ({ ...current, ...changes }));
+  const updateValues = (changes: Partial<AttendanceFormValues>) => {
+    const lessonChanges = splitChanges(changes);
+    setValues((current) => ({ ...current, ...lessonChanges }));
+  };
 
   const addDateRange = () =>
     setValues((current) => ({

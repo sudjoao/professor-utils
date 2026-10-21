@@ -10,6 +10,8 @@ export const INITIAL_CLASS_FORM_VALUES: ClassFormValues = {
   sortStudents: true,
 };
 
+export const CLASS_FORM_KEYS = Object.keys(INITIAL_CLASS_FORM_VALUES) as (keyof ClassFormValues)[];
+
 const compareNames = (first: string, second: string): number =>
   first.localeCompare(second, 'pt-BR', { sensitivity: 'base' });
 
@@ -44,9 +46,11 @@ export const getClassInfo = ({ classroomName, subject, teacherName }: ClassInfo)
 
 export const toClassFormValues = ({
   name,
+  subject = '',
   students,
-}: Classroom): Pick<ClassFormValues, 'classroomName' | 'studentsText'> => ({
+}: Classroom): Pick<ClassFormValues, 'classroomName' | 'subject' | 'studentsText'> => ({
   classroomName: name,
+  subject,
   studentsText: students.map((student) => student.name).join('\n'),
 });
 

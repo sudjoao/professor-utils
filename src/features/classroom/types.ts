@@ -6,6 +6,8 @@ export type Student = {
 export type Classroom = {
   id: string;
   name: string;
+  /** Missing in classrooms saved before the subject was stored. */
+  subject?: string;
   students: Student[];
 };
 

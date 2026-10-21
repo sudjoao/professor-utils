@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react';
 
-import {
-  getStudentNames,
-  INITIAL_CLASS_FORM_VALUES,
-} from '@/features/classroom/services/classForm';
-import type { ClassFormValues } from '@/features/classroom/types';
+import { useClassDraft } from '@/features/classroom/hooks/useClassDraft';
+import { getStudentNames } from '@/features/classroom/services/classForm';
 import {
   INITIAL_REPORT_SETTINGS,
   REPORT_SETTINGS_KEYS,
@@ -12,61 +9,49 @@ import {
   updateReportSettings,
 } from '@/features/reports/reportSettingsSlice';
 import { validateReportForm } from '@/features/reports/services/validateReportForm';
-import type { ReportFormValues, ReportSettings } from '@/features/reports/types';
+import type { ReportFormValues } from '@/features/reports/types';
 import { useToday } from '@/lib/date/useToday';
+import { hasEntries, splitByKeys } from '@/lib/object/splitByKeys';
 import { useAppDispatch, usePersistedSelector } from '@/store/hooks';
 
-/** What changes on every export; school data lives in the persisted `reportSettings` slice. */
-type LocalValues = ClassFormValues &
-  Pick<ReportFormValues, 'schoolYear' | 'documentDate' | 'commonText'>;
+/**
+ * What changes on every export. The class comes from the shared draft and the school data
+ * from the persisted `reportSettings` slice.
+ */
+type LocalValues = Pick<ReportFormValues, 'schoolYear' | 'documentDate' | 'commonText'>;
 
 const INITIAL_LOCAL_VALUES: LocalValues = {
-  ...INITIAL_CLASS_FORM_VALUES,
   schoolYear: '',
   documentDate: '',
   commonText: '',
 };
 
-const isSettingsKey = (key: string): key is keyof ReportSettings =>
-  (REPORT_SETTINGS_KEYS as string[]).includes(key);
-
-const splitChanges = (changes: Partial<ReportFormValues>) => {
-  const entries = Object.entries(changes);
-
-  return {
-    settings: Object.fromEntries(
-      entries.filter(([key]) => isSettingsKey(key)),
-    ) as Partial<ReportSettings>,
-    local: Object.fromEntries(
-      entries.filter(([key]) => !isSettingsKey(key)),
-    ) as Partial<LocalValues>,
-  };
-};
-
 export const useReportForm = () => {
   const dispatch = useAppDispatch();
+  const { classDraft, splitChanges } = useClassDraft();
   const settings = usePersistedSelector(selectReportSettings, INITIAL_REPORT_SETTINGS);
   const [localValues, setLocalValues] = useState<LocalValues>(INITIAL_LOCAL_VALUES);
   const today = useToday();
 
   const values = useMemo<ReportFormValues>(
     () => ({
+      ...classDraft,
       ...localValues,
       ...settings,
       // Blank fields count as today, like the attendance dates.
       schoolYear: localValues.schoolYear || today?.slice(0, 4) || '',
       documentDate: localValues.documentDate || today || '',
     }),
-    [localValues, settings, today],
+    [classDraft, localValues, settings, today],
   );
 
   const updateValues = (changes: Partial<ReportFormValues>) => {
-    const { settings: settingsChanges, local } = splitChanges(changes);
+    const [settingsChanges, local] = splitByKeys(splitChanges(changes), REPORT_SETTINGS_KEYS);
 
-    if (Object.keys(settingsChanges).length > 0) {
+    if (hasEntries(settingsChanges)) {
       dispatch(updateReportSettings(settingsChanges));
     }
-    if (Object.keys(local).length > 0) {
+    if (hasEntries(local)) {
       setLocalValues((current) => ({ ...current, ...local }));
     }
   };
