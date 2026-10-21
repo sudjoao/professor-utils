@@ -7,6 +7,20 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 - [x] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada por datas (um ou vários períodos, escolhendo os dias da semana e removendo feriados) ou por quantidade de aulas. A lista cabe na largura de uma folha A4 deitada; o que passar disso vai para novas páginas
 - [x] **Lista de notas**: planilha para lançar as notas, com colunas por quantidade ("Nota 1", "Nota 2"...) ou pelo título de cada avaliação, coluna final de média ou soma calculada pelo Excel e validação de 0 até a nota máxima
 - [x] **Relatórios (RAv – Registro de Avaliação)**: gera em Word (`.docx`) o Formulário 1 da SEEDF para a turma inteira, um aluno por página, com cabeçalho (brasão), dados da escola, turma, turno, bimestre, dias letivos, local/data e matrículas já preenchidos. O professor só escreve a avaliação e o total de faltas; opcionalmente, um texto comum com `[ALUNO]` é repetido para cada aluno com o nome dele. Os dados da escola ficam salvos no navegador
+- [x] **Aparência das planilhas**: paletas de cores prontas (cabeçalho e linhas alternadas), opção sem linhas alternadas e letra grande, com prévia; a escolha vale para chamada e notas e fica salva
+- [x] **Turma compartilhada**: turma, disciplina, professor(a) e alunos ficam salvos como rascunho e já aparecem preenchidos nas três ferramentas, inclusive depois de recarregar a página
+
+## Público e acessibilidade
+
+A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
+
+- texto base de 18px, controle **A− / A+** no topo (salvo no navegador) e alto contraste;
+- linguagem simples, um passo por card ("Passo 1 de 4") e exemplos em todos os campos;
+- erros aparecem ao lado do campo e num resumo que recebe o foco, com links para cada campo;
+- tudo funciona pelo teclado (link "Pular para o conteúdo", foco sempre visível) e com leitor de tela;
+- depois do download, um aviso diz onde encontrar o arquivo.
+
+Ao criar telas novas, use os componentes de `src/components` (abaixo) em vez de montar label/erro à mão, e prefira `ChoiceCards`/`OptionButtons` a abas para escolhas.
 
 ## Stack
 
@@ -41,20 +55,26 @@ pnpm dev          # http://localhost:3000
 src/
   app/                  # rotas (App Router): só compõem a página, sem regra de negócio
   features/             # um módulo por funcionalidade
-    classroom/          # domínio compartilhado: turmas e alunos (slice do Redux),
-                        #   card "Turma e alunos" e layout base das planilhas (classSheet)
+    classroom/          # domínio compartilhado: turmas salvas, rascunho da turma (classDraft),
+                        #   aparência das planilhas (sheetStyle), card "Turma e alunos"
+                        #   e layout base das planilhas (classSheet)
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts
       components/       #   componentes React da feature
       services/         #   lógica pura (ex.: montar a planilha), sem React, fácil de testar
   components/
-    ExportPanel.tsx     # resumo, erros e botão de download usados pelos formulários
-    OptionButtons.tsx   # grupo de botões de escolha única (bimestre, turno, cálculo...)
-    layout/             # header, container de página etc.
+    StepCard.tsx        # card de um passo do formulário ("Passo 2 de 4"), com título h2
+    FormField.tsx       # FormField / FieldGroup: rótulo, dica, erro e "(opcional)" já ligados ao campo
+    NumberField.tsx     # campo numérico com botões − e +, aceita vírgula
+    ChoiceCards.tsx     # escolha única com opções grandes e explicadas (substitui abas)
+    OptionButtons.tsx   # escolha única compacta (bimestre, turno, cálculo...)
+    ExportPanel.tsx     # resumo, erros com links, botão de download e aviso de sucesso
+    layout/             # header, navegação, controle A−/A+, link "pular", container de página
     ui/                 # componentes gerados pelo shadcn (não editar à mão)
   config/tools.ts       # lista de ferramentas (título, descrição, rota, ícone)
-  lib/                  # utilitários genéricos (texto, datas, excel, arquivos, cn)
+  lib/                  # utilitários genéricos (texto, datas, números, excel, arquivos,
+                        #   erros de formulário, tamanho do texto, cn)
   store/                # configuração do Redux, hooks tipados e Provider
 ```
 
