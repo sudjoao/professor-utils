@@ -15,12 +15,9 @@ export const solidFill = (argb: string): Fill => ({
   fgColor: { argb },
 });
 
-export const HEADER_FILL = solidFill('FFE5E7EB');
-export const STRIPE_FILL = solidFill('FFF5F5F5');
-
-export const styleHeaderCell = (cell: Cell, fontSize = 10) => {
+export const styleHeaderCell = (cell: Cell, fill: Fill, fontSize = 10) => {
   cell.font = { bold: true, size: fontSize };
   cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
   cell.border = THIN_BORDER;
-  cell.fill = HEADER_FILL;
+  cell.fill = fill;
 };

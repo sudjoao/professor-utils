@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { buildSheetStyle } from '@/features/classroom/__fixtures__/sheetStyle';
 import { MAX_GRADE_COLUMNS, MAX_GRADE_LIMIT } from '@/features/grades/constants';
 import {
   buildGradesSheetData,
@@ -24,19 +25,24 @@ const buildValues = (overrides: Partial<GradesFormValues> = {}): GradesFormValue
 
 describe('buildGradesSheetData', () => {
   it('numbers the grades in count mode', () => {
-    expect(buildGradesSheetData(buildValues()).gradeTitles).toEqual(['Nota 1', 'Nota 2', 'Nota 3']);
+    expect(buildGradesSheetData(buildValues(), buildSheetStyle()).gradeTitles).toEqual([
+      'Nota 1',
+      'Nota 2',
+      'Nota 3',
+    ]);
   });
 
   it('uses one title per line in titles mode', () => {
     const data = buildGradesSheetData(
       buildValues({ columnMode: 'titles', gradeTitlesText: ' Prova 1 \n\nTrabalho em grupo\n' }),
+      buildSheetStyle(),
     );
 
     expect(data.gradeTitles).toEqual(['Prova 1', 'Trabalho em grupo']);
   });
 
   it('sorts students and trims the class info', () => {
-    const data = buildGradesSheetData(buildValues());
+    const data = buildGradesSheetData(buildValues(), buildSheetStyle());
 
     expect(data.studentNames).toEqual(['Ana Souza', 'Carla Dias']);
     expect(data.classInfo.classroomName).toBe('7º A');

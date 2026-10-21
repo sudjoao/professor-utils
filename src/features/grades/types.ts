@@ -1,4 +1,4 @@
-import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
+import type { ClassFormValues, ClassInfo, SheetStyle } from '@/features/classroom/types';
 
 export type GradeColumnMode = 'count' | 'titles';
 
@@ -18,4 +18,5 @@ export type GradesSheetData = {
   gradeTitles: string[];
   summary: GradeSummary;
   maxGrade: number;
+  style: SheetStyle;
 };

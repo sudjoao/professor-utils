@@ -1,4 +1,5 @@
 import { getClassInfo, getStudentNames } from '@/features/classroom/services/classForm';
+import type { SheetStyle } from '@/features/classroom/types';
 import { SUMMARY_OPTIONS } from '@/features/grades/constants';
 import type { GradeSummary, GradesFormValues, GradesSheetData } from '@/features/grades/types';
 import { parseLines } from '@/lib/text/parseLines';
@@ -17,10 +18,14 @@ export const getGradeTitles = ({
 export const getSummaryColumnTitle = (summary: GradeSummary): string | undefined =>
   SUMMARY_OPTIONS.find(({ value }) => value === summary)?.columnTitle;
 
-export const buildGradesSheetData = (values: GradesFormValues): GradesSheetData => ({
+export const buildGradesSheetData = (
+  values: GradesFormValues,
+  style: SheetStyle,
+): GradesSheetData => ({
   classInfo: getClassInfo(values),
   studentNames: getStudentNames(values),
   gradeTitles: getGradeTitles(values),
   summary: values.summary,
   maxGrade: values.maxGrade,
+  style,
 });

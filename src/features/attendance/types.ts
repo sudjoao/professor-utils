@@ -1,4 +1,4 @@
-import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
+import type { ClassFormValues, ClassInfo, SheetStyle } from '@/features/classroom/types';
 import type { IsoDate } from '@/lib/date/isoDate';
 import type { Weekday } from '@/lib/date/weekdays';
 
@@ -28,4 +28,5 @@ export type AttendanceSheetData = {
   classInfo: ClassInfo;
   studentNames: string[];
   columns: AttendanceColumn[];
+  style: SheetStyle;
 };

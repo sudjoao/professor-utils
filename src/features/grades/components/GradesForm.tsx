@@ -3,6 +3,7 @@
 import { ExportPanel } from '@/components/ExportPanel';
 import { StepCard } from '@/components/StepCard';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { SheetStyleField } from '@/features/classroom/components/SheetStyleField';
 import { GradeColumnsField } from '@/features/grades/components/GradeColumnsField';
 import { GradeColumnsPreview } from '@/features/grades/components/GradeColumnsPreview';
 import { GradeSettingsField } from '@/features/grades/components/GradeSettingsField';
@@ -12,10 +13,11 @@ import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 export const GradesForm = () => {
-  const { values, updateValues, sheetData, errors, summaryColumnTitle } = useGradesForm();
+  const { values, updateValues, sheetData, sheetStyle, errors, summaryColumnTitle } =
+    useGradesForm();
 
   const fileExport = useFileExport({
     errors,
@@ -68,7 +70,25 @@ export const GradesForm = () => {
         />
       </StepCard>
 
-      <StepCard step={3} totalSteps={TOTAL_STEPS} title="Baixar a lista">
+      <StepCard
+        step={3}
+        totalSteps={TOTAL_STEPS}
+        title="Aparência da planilha"
+        description="Escolha a cor e o tamanho da letra. Se preferir, é só pular este passo."
+      >
+        <SheetStyleField
+          preferences={sheetStyle.preferences}
+          columnTitles={
+            summaryColumnTitle
+              ? [...sheetData.gradeTitles, summaryColumnTitle]
+              : sheetData.gradeTitles
+          }
+          studentNames={sheetData.studentNames}
+          onChange={sheetStyle.updatePreferences}
+        />
+      </StepCard>
+
+      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Baixar a lista">
         <ExportPanel
           summary={
             <p className="text-lg font-medium">

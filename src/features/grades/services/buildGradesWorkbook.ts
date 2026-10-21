@@ -10,6 +10,8 @@ import {
   formatClassInfo,
   setColumnWidths,
 } from '@/features/classroom/services/classSheet';
+import { scaleSize } from '@/features/classroom/services/sheetStyle';
+import type { SheetStyle } from '@/features/classroom/types';
 import { getSummaryColumnTitle } from '@/features/grades/services/buildGradesSheetData';
 import type { GradesSheetData } from '@/features/grades/types';
 import { styleHeaderCell } from '@/lib/excel/styles';
@@ -24,6 +26,8 @@ const GRADE_FORMAT = '0.0#';
 const SUMMARY_FORMAT = '0.0';
 const MIN_COLUMN_WIDTH = 8;
 const MAX_COLUMN_WIDTH = 14;
+const HEADER_FONT_SIZE = 9;
+const HEADER_ROW_HEIGHT = 32;
 
 const SUMMARY_FUNCTIONS = { average: 'AVERAGE', sum: 'SUM' } as const;
 
@@ -53,14 +57,14 @@ const forEachCell = (
   }
 };
 
-const addColumnHeaders = (worksheet: Worksheet, titles: string[]) => {
+const addColumnHeaders = (worksheet: Worksheet, titles: string[], style: SheetStyle) => {
   titles.forEach((title, index) => {
     const cell = worksheet.getCell(HEADER_ROW, FIRST_DATA_COLUMN + index);
     cell.value = title;
-    styleHeaderCell(cell, 9);
+    styleHeaderCell(cell, style.headerFill, scaleSize(HEADER_FONT_SIZE, style));
   });
 
-  worksheet.getRow(HEADER_ROW).height = 32;
+  worksheet.getRow(HEADER_ROW).height = scaleSize(HEADER_ROW_HEIGHT, style);
 };
 
 /** Only accepts numbers from 0 to the max grade, so typos like "75" instead of "7,5" are caught. */
@@ -109,6 +113,7 @@ export const buildGradesWorkbook = ({
   gradeTitles,
   summary,
   maxGrade,
+  style,
 }: GradesSheetData): ExcelJS.Workbook => {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Professor Utils';
@@ -130,9 +135,9 @@ export const buildGradesWorkbook = ({
     info: formatClassInfo(classInfo, [`Nota máxima: ${formatNumber(maxGrade)}`]),
     lastColumn,
   });
-  addStudentHeaders(worksheet, HEADER_ROW);
-  addColumnHeaders(worksheet, columnTitles);
-  addStudentRows(worksheet, { studentNames, firstRow: FIRST_STUDENT_ROW, lastColumn });
+  addStudentHeaders(worksheet, HEADER_ROW, style);
+  addColumnHeaders(worksheet, columnTitles, style);
+  addStudentRows(worksheet, { studentNames, firstRow: FIRST_STUDENT_ROW, lastColumn, style });
   restrictGradeValues(worksheet, gradeCells, maxGrade);
 
   if (summary !== 'none') {

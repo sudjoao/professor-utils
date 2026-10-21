@@ -11,17 +11,18 @@ import { WeekdaysField } from '@/features/attendance/components/WeekdaysField';
 import { COLUMN_MODE_CHOICES, MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { SheetStyleField } from '@/features/classroom/components/SheetStyleField';
 import { workbookToBlob } from '@/lib/excel/workbookToBlob';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { getFieldError } from '@/lib/forms/formErrors';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 export const AttendanceForm = () => {
   const form = useAttendanceForm();
-  const { values, sheetData, pageCount } = form;
+  const { values, sheetData, sheetStyle, pageCount } = form;
 
   const fileExport = useFileExport({
     errors: form.errors,
@@ -93,7 +94,23 @@ export const AttendanceForm = () => {
         )}
       </StepCard>
 
-      <StepCard step={3} totalSteps={TOTAL_STEPS} title="Baixar a lista">
+      <StepCard
+        step={3}
+        totalSteps={TOTAL_STEPS}
+        title="Aparência da planilha"
+        description="Escolha a cor e o tamanho da letra. Se preferir, é só pular este passo."
+      >
+        <SheetStyleField
+          preferences={sheetStyle.preferences}
+          columnTitles={sheetData.columns.map(({ label, caption }) =>
+            [label, caption].filter(Boolean).join(' '),
+          )}
+          studentNames={sheetData.studentNames}
+          onChange={sheetStyle.updatePreferences}
+        />
+      </StepCard>
+
+      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Baixar a lista">
         <ExportPanel
           summary={
             <div className="space-y-2">

@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import { describe, expect, it } from 'vitest';
 
+import { buildSheetStyle } from '@/features/classroom/__fixtures__/sheetStyle';
 import { buildGradesWorkbook } from '@/features/grades/services/buildGradesWorkbook';
 import type { GradesSheetData } from '@/features/grades/types';
 
@@ -10,6 +11,7 @@ const buildSheetData = (overrides: Partial<GradesSheetData> = {}): GradesSheetDa
   gradeTitles: ['Prova 1', 'Prova 2', 'Trabalho'],
   summary: 'average',
   maxGrade: 10,
+  style: buildSheetStyle(),
   ...overrides,
 });
 
@@ -30,6 +32,16 @@ describe('buildGradesWorkbook', () => {
       'Média',
     ]);
     expect(worksheet.getCell('B5').value).toBe('Bruno Lima');
+  });
+
+  it('paints the header with the chosen palette', () => {
+    const [worksheet] = buildGradesWorkbook(
+      buildSheetData({ style: buildSheetStyle({ paletteId: 'green' }) }),
+    ).worksheets;
+    const headerFill = worksheet.getCell('F3').fill;
+
+    expect(headerFill).toMatchObject({ fgColor: { argb: 'FFBBF7D0' } });
+    expect(worksheet.getCell('C5').fill).toMatchObject({ fgColor: { argb: 'FFDCFCE7' } });
   });
 
   it('calculates the average of the filled grades, blank while there is none', () => {

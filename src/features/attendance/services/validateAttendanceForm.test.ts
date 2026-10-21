@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { buildSheetStyle } from '@/features/classroom/__fixtures__/sheetStyle';
 import { MAX_LESSON_COLUMNS } from '@/features/attendance/constants';
 import { buildAttendanceSheetData } from '@/features/attendance/services/buildAttendanceSheetData';
 import { validateAttendanceForm } from '@/features/attendance/services/validateAttendanceForm';
@@ -22,14 +23,17 @@ const buildValues = (overrides: Partial<AttendanceFormValues> = {}): AttendanceF
 
 describe('buildAttendanceSheetData', () => {
   it('sorts the students and trims the class info', () => {
-    const data = buildAttendanceSheetData(buildValues());
+    const data = buildAttendanceSheetData(buildValues(), buildSheetStyle());
 
     expect(data.studentNames).toEqual(['ana souza', 'Bruno Lima', 'Carla Dias']);
     expect(data.classInfo.classroomName).toBe('7º A');
   });
 
   it('creates one column per lesson date with weekday and day/month', () => {
-    const { columns } = buildAttendanceSheetData(buildValues({ excludedDates: ['2026-03-03'] }));
+    const { columns } = buildAttendanceSheetData(
+      buildValues({ excludedDates: ['2026-03-03'] }),
+      buildSheetStyle(),
+    );
 
     expect(columns).toHaveLength(4);
     expect(columns[0]).toEqual({ label: 'seg', caption: '02/03' });
@@ -39,6 +43,7 @@ describe('buildAttendanceSheetData', () => {
   it('creates numbered columns in count mode', () => {
     const { columns } = buildAttendanceSheetData(
       buildValues({ columnMode: 'count', lessonCount: 3 }),
+      buildSheetStyle(),
     );
 
     expect(columns.map(({ label }) => label)).toEqual(['1', '2', '3']);

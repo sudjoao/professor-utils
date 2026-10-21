@@ -1,7 +1,8 @@
 import type { Worksheet } from 'exceljs';
 
-import type { ClassInfo } from '@/features/classroom/types';
-import { A4_PAPER_SIZE, STRIPE_FILL, styleHeaderCell, THIN_BORDER } from '@/lib/excel/styles';
+import { scaleSize } from '@/features/classroom/services/sheetStyle';
+import type { ClassInfo, SheetStyle } from '@/features/classroom/types';
+import { A4_PAPER_SIZE, styleHeaderCell, THIN_BORDER } from '@/lib/excel/styles';
 
 /*
  * Layout shared by every class sheet (attendance, grades...):
@@ -19,6 +20,7 @@ export const FIRST_DATA_COLUMN = 3;
 const NUMBER_COLUMN_WIDTH = 4.5;
 const NAME_COLUMN_WIDTH = 34;
 const STUDENT_ROW_HEIGHT = 18;
+const STUDENT_FONT_SIZE = 10;
 
 type SheetTitle = {
   title: string;
@@ -30,6 +32,7 @@ type StudentRows = {
   studentNames: string[];
   firstRow: number;
   lastColumn: number;
+  style: SheetStyle;
 };
 
 type PrintSettings = {
@@ -75,7 +78,11 @@ export const addSheetTitle = (worksheet: Worksheet, { title, info, lastColumn }:
 };
 
 /** "Nº" and "Aluno(a)" header cells, merged down to the last header row. */
-export const addStudentHeaders = (worksheet: Worksheet, lastHeaderRow: number) => {
+export const addStudentHeaders = (
+  worksheet: Worksheet,
+  lastHeaderRow: number,
+  style: SheetStyle,
+) => {
   worksheet.mergeCells(FIRST_HEADER_ROW, NUMBER_COLUMN, lastHeaderRow, NUMBER_COLUMN);
   worksheet.mergeCells(FIRST_HEADER_ROW, NAME_COLUMN, lastHeaderRow, NAME_COLUMN);
 
@@ -83,31 +90,31 @@ export const addStudentHeaders = (worksheet: Worksheet, lastHeaderRow: number) =
   const nameCell = worksheet.getCell(FIRST_HEADER_ROW, NAME_COLUMN);
   numberCell.value = 'Nº';
   nameCell.value = 'Aluno(a)';
-  styleHeaderCell(numberCell);
-  styleHeaderCell(nameCell);
+  styleHeaderCell(numberCell, style.headerFill, scaleSize(STUDENT_FONT_SIZE, style));
+  styleHeaderCell(nameCell, style.headerFill, scaleSize(STUDENT_FONT_SIZE, style));
 };
 
 export const addStudentRows = (
   worksheet: Worksheet,
-  { studentNames, firstRow, lastColumn }: StudentRows,
+  { studentNames, firstRow, lastColumn, style }: StudentRows,
 ) => {
   studentNames.forEach((name, index) => {
     const row = worksheet.getRow(firstRow + index);
-    row.height = STUDENT_ROW_HEIGHT;
+    row.height = scaleSize(STUDENT_ROW_HEIGHT, style);
     row.getCell(NUMBER_COLUMN).value = index + 1;
     row.getCell(NAME_COLUMN).value = name;
 
     for (let columnNumber = NUMBER_COLUMN; columnNumber <= lastColumn; columnNumber++) {
       const cell = row.getCell(columnNumber);
       cell.border = THIN_BORDER;
-      cell.font = { size: 10 };
+      cell.font = { size: scaleSize(STUDENT_FONT_SIZE, style) };
       cell.alignment = {
         vertical: 'middle',
         horizontal: columnNumber === NAME_COLUMN ? 'left' : 'center',
         shrinkToFit: columnNumber === NAME_COLUMN,
       };
-      if (index % 2 === 1) {
-        cell.fill = STRIPE_FILL;
+      if (style.stripeFill && index % 2 === 1) {
+        cell.fill = style.stripeFill;
       }
     }
   });

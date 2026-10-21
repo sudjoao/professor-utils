@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useClassDraft } from '@/features/classroom/hooks/useClassDraft';
+import { useSheetStyle } from '@/features/classroom/hooks/useSheetStyle';
 import type { ClassFormValues } from '@/features/classroom/types';
 import { DEFAULT_GRADE_COUNT, DEFAULT_MAX_GRADE } from '@/features/grades/constants';
 import {
@@ -23,6 +24,7 @@ const INITIAL_VALUES: GradeValues = {
 
 export const useGradesForm = () => {
   const { classDraft, splitChanges } = useClassDraft();
+  const sheetStyle = useSheetStyle();
   const [gradeValues, setValues] = useState<GradeValues>(INITIAL_VALUES);
   const values = useMemo<GradesFormValues>(
     () => ({ ...classDraft, ...gradeValues }),
@@ -34,9 +36,12 @@ export const useGradesForm = () => {
     setValues((current) => ({ ...current, ...gradeChanges }));
   };
 
-  const sheetData = useMemo(() => buildGradesSheetData(values), [values]);
+  const sheetData = useMemo(
+    () => buildGradesSheetData(values, sheetStyle.style),
+    [values, sheetStyle.style],
+  );
   const errors = useMemo(() => validateGradesForm(values), [values]);
   const summaryColumnTitle = getSummaryColumnTitle(values.summary);
 
-  return { values, updateValues, sheetData, errors, summaryColumnTitle };
+  return { values, updateValues, sheetData, sheetStyle, errors, summaryColumnTitle };
 };

@@ -7,6 +7,7 @@ import { buildLessonDates, fillEmptyDates } from '@/features/attendance/services
 import { validateAttendanceForm } from '@/features/attendance/services/validateAttendanceForm';
 import type { AttendanceFormValues, DateRange } from '@/features/attendance/types';
 import { useClassDraft } from '@/features/classroom/hooks/useClassDraft';
+import { useSheetStyle } from '@/features/classroom/hooks/useSheetStyle';
 import type { ClassFormValues } from '@/features/classroom/types';
 import type { IsoDate } from '@/lib/date/isoDate';
 import { useToday } from '@/lib/date/useToday';
@@ -30,6 +31,7 @@ const toggleItem = <T>(items: T[], item: T): T[] =>
 
 export const useAttendanceForm = () => {
   const { classDraft, splitChanges } = useClassDraft();
+  const sheetStyle = useSheetStyle();
   const [lessonValues, setValues] = useState<LessonValues>(INITIAL_VALUES);
   const today = useToday();
 
@@ -80,7 +82,10 @@ export const useAttendanceForm = () => {
     }));
 
   const candidateDates = useMemo(() => buildLessonDates(values), [values]);
-  const sheetData = useMemo(() => buildAttendanceSheetData(values), [values]);
+  const sheetData = useMemo(
+    () => buildAttendanceSheetData(values, sheetStyle.style),
+    [values, sheetStyle.style],
+  );
   const errors = useMemo(() => validateAttendanceForm(values), [values]);
   const pageCount = Math.ceil(sheetData.columns.length / MAX_COLUMNS_PER_PAGE);
 
@@ -94,6 +99,7 @@ export const useAttendanceForm = () => {
     toggleExcludedDate,
     candidateDates,
     sheetData,
+    sheetStyle,
     errors,
     pageCount,
   };

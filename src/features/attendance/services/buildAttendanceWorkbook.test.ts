@@ -5,12 +5,21 @@ import { MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { buildAttendanceWorkbook } from '@/features/attendance/services/buildAttendanceWorkbook';
 import { toNumberedColumns } from '@/features/attendance/services/buildAttendanceColumns';
 import type { AttendanceSheetData } from '@/features/attendance/types';
+import { buildSheetStyle } from '@/features/classroom/__fixtures__/sheetStyle';
+import type { SheetStyle } from '@/features/classroom/types';
 
-const buildSheetData = (columnsCount: number): AttendanceSheetData => ({
+const buildSheetData = (
+  columnsCount: number,
+  style: SheetStyle = buildSheetStyle(),
+): AttendanceSheetData => ({
   classInfo: { classroomName: '7º A', subject: 'Matemática', teacherName: 'Joana' },
-  studentNames: ['Ana Souza', 'Bruno Lima'],
+  studentNames: ['Ana Souza', 'Bruno Lima', 'Carla Dias'],
   columns: toNumberedColumns(columnsCount),
+  style,
 });
+
+const fillColor = (cell: ExcelJS.Cell) =>
+  cell.fill?.type === 'pattern' ? cell.fill.fgColor?.argb : undefined;
 
 describe('buildAttendanceWorkbook', () => {
   it('creates a single landscape A4 page that fits the width', () => {
@@ -53,6 +62,34 @@ describe('buildAttendanceWorkbook', () => {
     expect(secondPage.columnCount).toBe(2 + 5);
     expect(secondPage.getCell('C3').value).toBe(String(MAX_COLUMNS_PER_PAGE + 1));
     expect(secondPage.getCell('B5').value).toBe('Ana Souza');
+  });
+
+  it('paints the header and every other student row with the chosen palette', () => {
+    const [worksheet] = buildAttendanceWorkbook(
+      buildSheetData(3, buildSheetStyle({ paletteId: 'blue' })),
+    ).worksheets;
+
+    expect(fillColor(worksheet.getCell('B3'))).toBe('FFBFDBFE');
+    expect(fillColor(worksheet.getCell('C4'))).toBe('FFBFDBFE');
+    expect(fillColor(worksheet.getCell('B5'))).toBeUndefined();
+    expect(fillColor(worksheet.getCell('B6'))).toBe('FFDBEAFE');
+  });
+
+  it('leaves student rows white when stripes are off', () => {
+    const [worksheet] = buildAttendanceWorkbook(
+      buildSheetData(3, buildSheetStyle({ stripes: false })),
+    ).worksheets;
+
+    expect(fillColor(worksheet.getCell('B6'))).toBeUndefined();
+  });
+
+  it('uses bigger letters and rows when the large size is chosen', () => {
+    const [worksheet] = buildAttendanceWorkbook(
+      buildSheetData(3, buildSheetStyle({ fontSize: 'large' })),
+    ).worksheets;
+
+    expect(worksheet.getCell('B5').font.size).toBe(12);
+    expect(worksheet.getRow(5).height).toBe(21.6);
   });
 
   it('generates a valid xlsx file', async () => {

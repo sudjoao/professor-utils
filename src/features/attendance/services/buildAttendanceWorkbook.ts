@@ -12,7 +12,8 @@ import {
   formatClassInfo,
   setColumnWidths,
 } from '@/features/classroom/services/classSheet';
-import type { ClassInfo } from '@/features/classroom/types';
+import { scaleSize } from '@/features/classroom/services/sheetStyle';
+import type { ClassInfo, SheetStyle } from '@/features/classroom/types';
 import { chunk } from '@/lib/array/chunk';
 import { styleHeaderCell } from '@/lib/excel/styles';
 
@@ -21,6 +22,8 @@ const HEADER_CAPTION_ROW = FIRST_HEADER_ROW + 1;
 const FIRST_STUDENT_ROW = HEADER_CAPTION_ROW + 1;
 
 const LESSON_COLUMN_WIDTH = 5.2;
+const LESSON_HEADER_FONT_SIZE = 9;
+const LESSON_HEADER_ROW_HEIGHT = 16;
 
 type AttendancePage = {
   sheetName: string;
@@ -28,9 +31,12 @@ type AttendancePage = {
   classInfo: ClassInfo;
   studentNames: string[];
   columns: AttendanceColumn[];
+  style: SheetStyle;
 };
 
-const addLessonHeaders = (worksheet: Worksheet, columns: AttendanceColumn[]) => {
+const addLessonHeaders = (worksheet: Worksheet, columns: AttendanceColumn[], style: SheetStyle) => {
+  const fontSize = scaleSize(LESSON_HEADER_FONT_SIZE, style);
+
   columns.forEach(({ label, caption }, index) => {
     const columnNumber = FIRST_DATA_COLUMN + index;
     const labelCell = worksheet.getCell(HEADER_LABEL_ROW, columnNumber);
@@ -38,12 +44,12 @@ const addLessonHeaders = (worksheet: Worksheet, columns: AttendanceColumn[]) => 
 
     labelCell.value = label;
     captionCell.value = caption;
-    styleHeaderCell(labelCell, 9);
-    styleHeaderCell(captionCell, 9);
+    styleHeaderCell(labelCell, style.headerFill, fontSize);
+    styleHeaderCell(captionCell, style.headerFill, fontSize);
   });
 
-  worksheet.getRow(HEADER_LABEL_ROW).height = 16;
-  worksheet.getRow(HEADER_CAPTION_ROW).height = 16;
+  worksheet.getRow(HEADER_LABEL_ROW).height = scaleSize(LESSON_HEADER_ROW_HEIGHT, style);
+  worksheet.getRow(HEADER_CAPTION_ROW).height = scaleSize(LESSON_HEADER_ROW_HEIGHT, style);
 };
 
 const addAttendancePage = (workbook: ExcelJS.Workbook, page: AttendancePage) => {
@@ -52,19 +58,20 @@ const addAttendancePage = (workbook: ExcelJS.Workbook, page: AttendancePage) => 
 
   setColumnWidths(
     worksheet,
-    page.columns.map(() => LESSON_COLUMN_WIDTH),
+    page.columns.map(() => scaleSize(LESSON_COLUMN_WIDTH, page.style)),
   );
   addSheetTitle(worksheet, {
     title: page.title,
     info: formatClassInfo(page.classInfo),
     lastColumn,
   });
-  addStudentHeaders(worksheet, HEADER_CAPTION_ROW);
-  addLessonHeaders(worksheet, page.columns);
+  addStudentHeaders(worksheet, HEADER_CAPTION_ROW, page.style);
+  addLessonHeaders(worksheet, page.columns, page.style);
   addStudentRows(worksheet, {
     studentNames: page.studentNames,
     firstRow: FIRST_STUDENT_ROW,
     lastColumn,
+    style: page.style,
   });
   configureA4Printing(worksheet, { orientation: 'landscape', lastHeaderRow: HEADER_CAPTION_ROW });
 };
@@ -77,6 +84,7 @@ export const buildAttendanceWorkbook = ({
   classInfo,
   studentNames,
   columns,
+  style,
 }: AttendanceSheetData): ExcelJS.Workbook => {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Professor Utils';
@@ -93,6 +101,7 @@ export const buildAttendanceWorkbook = ({
       classInfo,
       studentNames,
       columns: pageColumns,
+      style,
     });
   });
 
