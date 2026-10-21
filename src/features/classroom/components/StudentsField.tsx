@@ -19,13 +19,13 @@ export const StudentsField = ({
 }: StudentsFieldProps) => (
   <div className="space-y-2">
     <div className="flex items-center justify-between gap-2">
-      <Label htmlFor="attendance-students">Alunos (um por linha)</Label>
+      <Label htmlFor="class-students">Alunos (um por linha)</Label>
       <span className="text-xs text-muted-foreground">
         {studentCount} {studentCount === 1 ? 'aluno' : 'alunos'}
       </span>
     </div>
     <Textarea
-      id="attendance-students"
+      id="class-students"
       rows={10}
       value={studentsText}
       placeholder={'Ana Souza\nBruno Lima\nCarla Dias'}

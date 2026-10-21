@@ -7,7 +7,7 @@ import { toNumberedColumns } from '@/features/attendance/services/buildAttendanc
 import type { AttendanceSheetData } from '@/features/attendance/types';
 
 const buildSheetData = (columnsCount: number): AttendanceSheetData => ({
-  header: { classroomName: '7º A', subject: 'Matemática', teacherName: 'Joana' },
+  classInfo: { classroomName: '7º A', subject: 'Matemática', teacherName: 'Joana' },
   studentNames: ['Ana Souza', 'Bruno Lima'],
   columns: toNumberedColumns(columnsCount),
 });

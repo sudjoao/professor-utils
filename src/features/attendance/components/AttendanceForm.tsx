@@ -1,88 +1,42 @@
 'use client';
 
-import { useState } from 'react';
-
+import { ExportPanel } from '@/components/ExportPanel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClassInfoFields } from '@/features/attendance/components/ClassInfoFields';
 import { DateRangesField } from '@/features/attendance/components/DateRangesField';
-import { ExportPanel } from '@/features/attendance/components/ExportPanel';
 import { LessonCountField } from '@/features/attendance/components/LessonCountField';
 import { LessonDatesPreview } from '@/features/attendance/components/LessonDatesPreview';
-import { SavedClassrooms } from '@/features/attendance/components/SavedClassrooms';
-import { StudentsField } from '@/features/attendance/components/StudentsField';
 import { WeekdaysField } from '@/features/attendance/components/WeekdaysField';
+import { MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
 import type { ColumnMode } from '@/features/attendance/types';
-import { downloadWorkbook } from '@/lib/excel/downloadWorkbook';
-import { slugify } from '@/lib/text/slugify';
-
-const buildFileName = (classroomName: string): string =>
-  ['lista-de-chamada', slugify(classroomName)].filter(Boolean).join('-');
+import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { useWorkbookExport } from '@/lib/excel/useWorkbookExport';
+import { pluralize } from '@/lib/text/pluralize';
+import { toFileName } from '@/lib/text/slugify';
 
 export const AttendanceForm = () => {
   const form = useAttendanceForm();
-  const { values, sheetData, errors } = form;
+  const { values, sheetData, pageCount } = form;
 
-  const [hasTriedExport, setHasTriedExport] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportError, setExportError] = useState('');
-
-  const handleExport = async () => {
-    setHasTriedExport(true);
-    setExportError('');
-
-    if (errors.length > 0) {
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      // ExcelJS is heavy, so it is only downloaded when the teacher actually exports.
+  const { visibleErrors, isExporting, exportError, exportWorkbook } = useWorkbookExport({
+    errors: form.errors,
+    fileName: toFileName('Lista de chamada', values.classroomName),
+    loadWorkbook: async () => {
       const { buildAttendanceWorkbook } =
         await import('@/features/attendance/services/buildAttendanceWorkbook');
-      await downloadWorkbook(
-        buildAttendanceWorkbook(sheetData),
-        buildFileName(values.classroomName),
-      );
-    } catch (error) {
-      console.error(error);
-      setExportError('Não foi possível gerar a planilha. Tente novamente.');
-    } finally {
-      setIsExporting(false);
-    }
-  };
+      return buildAttendanceWorkbook(sheetData);
+    },
+  });
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>1. Turma e alunos</CardTitle>
-          <CardDescription>
-            Cole a lista de alunos ou carregue uma turma que você já salvou.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ClassInfoFields
-            classroomName={values.classroomName}
-            subject={values.subject}
-            teacherName={values.teacherName}
-            onFieldChange={form.setField}
-          />
-          <StudentsField
-            studentsText={values.studentsText}
-            sortStudents={values.sortStudents}
-            studentCount={sheetData.studentNames.length}
-            onStudentsTextChange={(text) => form.setField('studentsText', text)}
-            onSortStudentsChange={(sortStudents) => form.setField('sortStudents', sortStudents)}
-          />
-          <SavedClassrooms
-            classroomName={values.classroomName}
-            studentNames={sheetData.studentNames}
-            onLoad={form.loadClassroom}
-          />
-        </CardContent>
-      </Card>
+      <ClassroomCard
+        title="1. Turma e alunos"
+        values={values}
+        studentNames={sheetData.studentNames}
+        onChange={form.updateValues}
+      />
 
       <Card>
         <CardHeader>
@@ -94,7 +48,7 @@ export const AttendanceForm = () => {
         <CardContent>
           <Tabs
             value={values.columnMode}
-            onValueChange={(mode) => form.setField('columnMode', mode as ColumnMode)}
+            onValueChange={(mode) => form.updateValues({ columnMode: mode as ColumnMode })}
           >
             <TabsList>
               <TabsTrigger value="dates">Por datas</TabsTrigger>
@@ -112,7 +66,7 @@ export const AttendanceForm = () => {
                 <WeekdaysField
                   weekdays={values.weekdays}
                   onToggle={form.toggleWeekday}
-                  onSelect={(weekdays) => form.setField('weekdays', weekdays)}
+                  onSelect={(weekdays) => form.updateValues({ weekdays })}
                 />
               </div>
               <LessonDatesPreview
@@ -125,7 +79,7 @@ export const AttendanceForm = () => {
             <TabsContent value="count" className="pt-4">
               <LessonCountField
                 lessonCount={values.lessonCount}
-                onChange={(lessonCount) => form.setField('lessonCount', lessonCount)}
+                onChange={(lessonCount) => form.updateValues({ lessonCount })}
               />
             </TabsContent>
           </Tabs>
@@ -138,13 +92,26 @@ export const AttendanceForm = () => {
         </CardHeader>
         <CardContent>
           <ExportPanel
-            studentCount={sheetData.studentNames.length}
-            lessonCount={sheetData.columns.length}
-            pageCount={form.pageCount}
-            errors={hasTriedExport ? errors : []}
+            summary={
+              <>
+                <p className="text-sm">
+                  {pluralize(sheetData.studentNames.length, 'aluno', 'alunos')} ·{' '}
+                  {pluralize(sheetData.columns.length, 'aula', 'aulas')} ·{' '}
+                  {pluralize(pageCount, 'página', 'páginas')}
+                </p>
+                {pageCount > 1 && (
+                  <p className="text-xs text-muted-foreground">
+                    Cada página tem até {MAX_COLUMNS_PER_PAGE} aulas para caber na largura de uma
+                    folha A4 deitada. As páginas ficam em abas separadas da planilha; para imprimir
+                    todas, escolha &quot;Imprimir pasta de trabalho inteira&quot;.
+                  </p>
+                )}
+              </>
+            }
+            errors={visibleErrors}
             isExporting={isExporting}
             exportError={exportError}
-            onExport={handleExport}
+            onExport={exportWorkbook}
           />
         </CardContent>
       </Card>

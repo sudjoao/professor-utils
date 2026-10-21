@@ -1,10 +1,8 @@
 import { MAX_LESSON_COLUMNS, MAX_RANGE_DAYS } from '@/features/attendance/constants';
-import {
-  getAttendanceColumns,
-  getStudentNames,
-} from '@/features/attendance/services/buildAttendanceSheetData';
+import { getAttendanceColumns } from '@/features/attendance/services/buildAttendanceSheetData';
 import { getRangeLength, isCompleteRange } from '@/features/attendance/services/buildLessonDates';
 import type { AttendanceFormValues } from '@/features/attendance/types';
+import { getStudentNames } from '@/features/classroom/services/classForm';
 
 const validateDateRanges = ({ dateRanges, weekdays }: AttendanceFormValues): string[] => {
   const completeRanges = dateRanges.filter(isCompleteRange);

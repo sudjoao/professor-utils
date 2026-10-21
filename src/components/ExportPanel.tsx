@@ -1,42 +1,25 @@
 import { Download } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 
 type ExportPanelProps = {
-  studentCount: number;
-  lessonCount: number;
-  pageCount: number;
+  summary: ReactNode;
   errors: string[];
   isExporting: boolean;
   exportError: string;
   onExport: () => void;
 };
 
-const pluralize = (count: number, singular: string, plural: string): string =>
-  `${count} ${count === 1 ? singular : plural}`;
-
 export const ExportPanel = ({
-  studentCount,
-  lessonCount,
-  pageCount,
+  summary,
   errors,
   isExporting,
   exportError,
   onExport,
 }: ExportPanelProps) => (
   <div className="space-y-4">
-    <p className="text-sm">
-      {pluralize(studentCount, 'aluno', 'alunos')} · {pluralize(lessonCount, 'aula', 'aulas')} ·{' '}
-      {pluralize(pageCount, 'página', 'páginas')}
-    </p>
-    {pageCount > 1 && (
-      <p className="text-xs text-muted-foreground">
-        Cada página tem até {MAX_COLUMNS_PER_PAGE} aulas para caber na largura de uma folha A4
-        deitada. As páginas ficam em abas separadas da planilha; para imprimir todas, escolha
-        &quot;Imprimir pasta de trabalho inteira&quot;.
-      </p>
-    )}
+    {summary}
 
     {errors.length > 0 && (
       <ul className="list-inside list-disc space-y-1 text-sm text-destructive" role="alert">

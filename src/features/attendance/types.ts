@@ -1,3 +1,4 @@
+import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
 import type { IsoDate } from '@/lib/date/isoDate';
 import type { Weekday } from '@/lib/date/weekdays';
 
@@ -9,12 +10,7 @@ export type DateRange = {
   end: IsoDate;
 };
 
-export type AttendanceFormValues = {
-  classroomName: string;
-  subject: string;
-  teacherName: string;
-  studentsText: string;
-  sortStudents: boolean;
+export type AttendanceFormValues = ClassFormValues & {
   columnMode: ColumnMode;
   dateRanges: DateRange[];
   weekdays: Weekday[];
@@ -28,14 +24,8 @@ export type AttendanceColumn = {
   caption: string;
 };
 
-export type AttendanceSheetHeader = {
-  classroomName: string;
-  subject: string;
-  teacherName: string;
-};
-
 export type AttendanceSheetData = {
-  header: AttendanceSheetHeader;
+  classInfo: ClassInfo;
   studentNames: string[];
   columns: AttendanceColumn[];
 };

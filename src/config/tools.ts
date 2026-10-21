@@ -18,7 +18,8 @@ export const TOOLS = {
   grades: {
     href: '/grades',
     title: 'Lista de notas',
-    description: 'Monte uma planilha para lançar as notas das avaliações da turma.',
+    description:
+      'Gere uma planilha em Excel para lançar as notas da turma, com média ou soma calculada automaticamente.',
     icon: GraduationCap,
   },
   reports: {

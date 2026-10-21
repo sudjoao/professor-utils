@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { slugify } from '@/lib/text/slugify';
+import { slugify, toFileName } from '@/lib/text/slugify';
 
 describe('slugify', () => {
   it('removes accents, lowercases and joins words with hyphens', () => {
@@ -9,5 +9,15 @@ describe('slugify', () => {
 
   it('returns an empty string when there is nothing alphanumeric', () => {
     expect(slugify(' -- ')).toBe('');
+  });
+});
+
+describe('toFileName', () => {
+  it('joins the slug of each part', () => {
+    expect(toFileName('Lista de notas', '7º A')).toBe('lista-de-notas-7o-a');
+  });
+
+  it('skips blank parts', () => {
+    expect(toFileName('Lista de chamada', '  ')).toBe('lista-de-chamada');
   });
 });

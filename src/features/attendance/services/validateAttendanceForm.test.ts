@@ -21,17 +21,11 @@ const buildValues = (overrides: Partial<AttendanceFormValues> = {}): AttendanceF
 });
 
 describe('buildAttendanceSheetData', () => {
-  it('sorts students alphabetically ignoring case and trims the header', () => {
+  it('sorts the students and trims the class info', () => {
     const data = buildAttendanceSheetData(buildValues());
 
     expect(data.studentNames).toEqual(['ana souza', 'Bruno Lima', 'Carla Dias']);
-    expect(data.header.classroomName).toBe('7º A');
-  });
-
-  it('keeps the typed order when sorting is off', () => {
-    const data = buildAttendanceSheetData(buildValues({ sortStudents: false }));
-
-    expect(data.studentNames).toEqual(['Carla Dias', 'ana souza', 'Bruno Lima']);
+    expect(data.classInfo.classroomName).toBe('7º A');
   });
 
   it('creates one column per lesson date with weekday and day/month', () => {

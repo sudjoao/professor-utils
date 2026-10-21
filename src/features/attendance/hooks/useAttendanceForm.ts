@@ -6,7 +6,7 @@ import { buildAttendanceSheetData } from '@/features/attendance/services/buildAt
 import { buildLessonDates, fillEmptyDates } from '@/features/attendance/services/buildLessonDates';
 import { validateAttendanceForm } from '@/features/attendance/services/validateAttendanceForm';
 import type { AttendanceFormValues, DateRange } from '@/features/attendance/types';
-import type { Classroom } from '@/features/classroom/types';
+import { INITIAL_CLASS_FORM_VALUES } from '@/features/classroom/services/classForm';
 import type { IsoDate } from '@/lib/date/isoDate';
 import { useToday } from '@/lib/date/useToday';
 import { BUSINESS_DAYS, type Weekday } from '@/lib/date/weekdays';
@@ -14,11 +14,7 @@ import { BUSINESS_DAYS, type Weekday } from '@/lib/date/weekdays';
 type DateRangeChanges = Partial<Pick<DateRange, 'start' | 'end'>>;
 
 const INITIAL_VALUES: AttendanceFormValues = {
-  classroomName: '',
-  subject: '',
-  teacherName: '',
-  studentsText: '',
-  sortStudents: true,
+  ...INITIAL_CLASS_FORM_VALUES,
   columnMode: 'dates',
   dateRanges: [{ id: 'initial-range', start: '', end: '' }],
   weekdays: BUSINESS_DAYS,
@@ -45,10 +41,8 @@ export const useAttendanceForm = () => {
     [rawValues, today],
   );
 
-  const setField = <Field extends keyof AttendanceFormValues>(
-    field: Field,
-    value: AttendanceFormValues[Field],
-  ) => setValues((current) => ({ ...current, [field]: value }));
+  const updateValues = (changes: Partial<AttendanceFormValues>) =>
+    setValues((current) => ({ ...current, ...changes }));
 
   const addDateRange = () =>
     setValues((current) => ({
@@ -79,13 +73,6 @@ export const useAttendanceForm = () => {
       excludedDates: toggleItem(current.excludedDates, date),
     }));
 
-  const loadClassroom = ({ name, students }: Classroom) =>
-    setValues((current) => ({
-      ...current,
-      classroomName: name,
-      studentsText: students.map((student) => student.name).join('\n'),
-    }));
-
   const candidateDates = useMemo(() => buildLessonDates(values), [values]);
   const sheetData = useMemo(() => buildAttendanceSheetData(values), [values]);
   const errors = useMemo(() => validateAttendanceForm(values), [values]);
@@ -93,13 +80,12 @@ export const useAttendanceForm = () => {
 
   return {
     values,
-    setField,
+    updateValues,
     addDateRange,
     updateDateRange,
     removeDateRange,
     toggleWeekday,
     toggleExcludedDate,
-    loadClassroom,
     candidateDates,
     sheetData,
     errors,
