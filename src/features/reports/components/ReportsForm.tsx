@@ -112,6 +112,7 @@ export const ReportsForm = () => {
       <StepCard step={4} totalSteps={TOTAL_STEPS} title="Texto da avaliação">
         <CommonTextField
           commonText={values.commonText}
+          firstStudentName={studentNames[0]}
           onChange={(commonText) => updateValues({ commonText })}
         />
       </StepCard>
