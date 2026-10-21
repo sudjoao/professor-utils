@@ -1,27 +1,30 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/FormField';
+import { NumberField } from '@/components/NumberField';
 import { MAX_LESSON_COLUMNS } from '@/features/attendance/constants';
+import { fieldId } from '@/lib/forms/formErrors';
 
 type LessonCountFieldProps = {
   lessonCount: number;
+  error?: string;
   onChange: (lessonCount: number) => void;
 };
 
-export const LessonCountField = ({ lessonCount, onChange }: LessonCountFieldProps) => (
-  <div className="space-y-2">
-    <Label htmlFor="attendance-lesson-count">Quantidade de aulas</Label>
-    <Input
-      id="attendance-lesson-count"
-      type="number"
-      inputMode="numeric"
-      min={1}
-      max={MAX_LESSON_COLUMNS}
-      className="w-32"
-      value={lessonCount || ''}
-      onChange={(event) => onChange(event.target.valueAsNumber || 0)}
-    />
-    <p className="text-xs text-muted-foreground">
-      As colunas saem numeradas, com espaço em branco para você escrever a data de cada aula.
-    </p>
-  </div>
+export const LessonCountField = ({ lessonCount, error, onChange }: LessonCountFieldProps) => (
+  <FormField
+    id={fieldId('lessonCount')}
+    label="Quantidade de aulas"
+    hint="As colunas saem numeradas (1, 2, 3...), com espaço em branco para você escrever a data de cada aula."
+    error={error}
+  >
+    {(control) => (
+      <NumberField
+        {...control}
+        name="aulas"
+        min={1}
+        max={MAX_LESSON_COLUMNS}
+        value={lessonCount}
+        onChange={onChange}
+      />
+    )}
+  </FormField>
 );

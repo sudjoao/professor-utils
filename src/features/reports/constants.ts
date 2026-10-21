@@ -6,6 +6,8 @@ export const DEFAULT_HEADER_IMAGE = '/reports/brasao-df.png';
 
 export const MAX_HEADER_IMAGE_BYTES = 1024 * 1024;
 
+export const MAX_SCHOOL_DAYS = 366;
+
 export const DEFAULT_STAGE = 'Ensino Fundamental – Anos Iniciais';
 
 export const SHIFT_OPTIONS: { value: Shift; label: string }[] = [

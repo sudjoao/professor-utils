@@ -1,5 +1,6 @@
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit';
 
+import { isSameName } from '@/features/classroom/services/classForm';
 import type { Classroom, Student } from '@/features/classroom/types';
 
 type ClassroomState = {
@@ -22,9 +23,6 @@ const initialState: ClassroomState = {
 
 const toStudents = (studentNames: string[]): Student[] =>
   studentNames.map((name) => ({ id: nanoid(), name }));
-
-const isSameName = (first: string, second: string): boolean =>
-  first.localeCompare(second, 'pt-BR', { sensitivity: 'base' }) === 0;
 
 const classroomSlice = createSlice({
   name: 'classroom',

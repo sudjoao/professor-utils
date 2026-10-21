@@ -60,13 +60,13 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.44 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --destructive: oklch(0.5 0.2 27);
+  --border: oklch(0.78 0 0);
+  --input: oklch(0.6 0 0);
+  --ring: oklch(0.5 0.2 260);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -126,5 +126,37 @@
   }
   html {
     @apply font-sans;
+    /* 18px instead of 16px: everything sized in rem (text, buttons, fields) grows with it. */
+    font-size: 112.5%;
+  }
+  html[data-text-size='large'] {
+    font-size: 125%;
+  }
+  html[data-text-size='x-large'] {
+    font-size: 137.5%;
+  }
+}
+
+/*
+ * Unlayered on purpose: it wins over the `outline-none` utilities of the shadcn components,
+ * so whoever navigates with the keyboard always sees a strong focus indicator.
+ */
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* The main area only receives focus from the "skip to content" link; no ring around the page. */
+main:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -1,43 +1,51 @@
+import { FieldGroup, FormField } from '@/components/FormField';
+import { NumberField } from '@/components/NumberField';
 import { OptionButtons } from '@/components/OptionButtons';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { MAX_GRADE_LIMIT, SUMMARY_OPTIONS } from '@/features/grades/constants';
 import type { GradesFormValues } from '@/features/grades/types';
+import { fieldId, type FormError, getFieldError } from '@/lib/forms/formErrors';
 
 type GradeSettingsFieldProps = Pick<GradesFormValues, 'summary' | 'maxGrade'> & {
+  errors: FormError[];
   onChange: (changes: Partial<GradesFormValues>) => void;
 };
 
-export const GradeSettingsField = ({ summary, maxGrade, onChange }: GradeSettingsFieldProps) => (
+export const GradeSettingsField = ({
+  summary,
+  maxGrade,
+  errors,
+  onChange,
+}: GradeSettingsFieldProps) => (
   <div className="space-y-6">
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Coluna calculada no final</legend>
+    <FieldGroup
+      id="grades-summary"
+      legend="No final, a planilha calcula:"
+      hint="A conta é feita sozinha pelo Excel conforme você lança as notas."
+    >
       <OptionButtons
         options={SUMMARY_OPTIONS}
         value={summary}
         onChange={(value) => onChange({ summary: value })}
       />
-      <p className="text-xs text-muted-foreground">
-        A planilha calcula sozinha conforme você lança as notas.
-      </p>
-    </fieldset>
+    </FieldGroup>
 
-    <div className="space-y-2">
-      <Label htmlFor="grades-max">Nota máxima de cada avaliação</Label>
-      <Input
-        id="grades-max"
-        type="number"
-        inputMode="decimal"
-        min={0}
-        max={MAX_GRADE_LIMIT}
-        step="any"
-        className="w-32"
-        value={maxGrade || ''}
-        onChange={(event) => onChange({ maxGrade: event.target.valueAsNumber || 0 })}
-      />
-      <p className="text-xs text-muted-foreground">
-        O Excel não aceita notas abaixo de 0 ou acima desse valor.
-      </p>
-    </div>
+    <FormField
+      id={fieldId('maxGrade')}
+      label="Nota máxima de cada avaliação"
+      hint="Ex.: 10. Se alguém digitar uma nota maior por engano (como 75 em vez de 7,5), o Excel avisa."
+      error={getFieldError(errors, 'maxGrade')}
+    >
+      {(control) => (
+        <NumberField
+          {...control}
+          name="nota máxima"
+          allowDecimals
+          min={0}
+          max={MAX_GRADE_LIMIT}
+          value={maxGrade}
+          onChange={(value) => onChange({ maxGrade: value })}
+        />
+      )}
+    </FormField>
   </div>
 );

@@ -1,26 +1,29 @@
 'use client';
 
+import { ChoiceCards } from '@/components/ChoiceCards';
 import { ExportPanel } from '@/components/ExportPanel';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FieldGroup } from '@/components/FormField';
+import { StepCard } from '@/components/StepCard';
 import { DateRangesField } from '@/features/attendance/components/DateRangesField';
 import { LessonCountField } from '@/features/attendance/components/LessonCountField';
 import { LessonDatesPreview } from '@/features/attendance/components/LessonDatesPreview';
 import { WeekdaysField } from '@/features/attendance/components/WeekdaysField';
-import { MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
+import { COLUMN_MODE_CHOICES, MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
-import type { ColumnMode } from '@/features/attendance/types';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
 import { workbookToBlob } from '@/lib/excel/workbookToBlob';
 import { useFileExport } from '@/lib/files/useFileExport';
+import { getFieldError } from '@/lib/forms/formErrors';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
+
+const TOTAL_STEPS = 3;
 
 export const AttendanceForm = () => {
   const form = useAttendanceForm();
   const { values, sheetData, pageCount } = form;
 
-  const { visibleErrors, isExporting, exportError, exportFile } = useFileExport({
+  const fileExport = useFileExport({
     errors: form.errors,
     fileName: `${toFileName('Lista de chamada', values.classroomName)}.xlsx`,
     buildFile: async () => {
@@ -29,94 +32,91 @@ export const AttendanceForm = () => {
       return workbookToBlob(buildAttendanceWorkbook(sheetData));
     },
   });
+  const errors = fileExport.visibleErrors;
 
   return (
     <div className="space-y-6">
       <ClassroomCard
-        title="1. Turma e alunos"
+        step={1}
+        totalSteps={TOTAL_STEPS}
         values={values}
         studentNames={sheetData.studentNames}
+        optionalFields={['classroomName', 'subject', 'teacherName']}
+        errors={errors}
         onChange={form.updateValues}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>2. Aulas</CardTitle>
-          <CardDescription>
-            Escolha as datas que vão aparecer na lista ou apenas a quantidade de colunas.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs
+      <StepCard
+        step={2}
+        totalSteps={TOTAL_STEPS}
+        title="Aulas"
+        description="Escolha como as colunas das aulas vão aparecer na lista."
+      >
+        <FieldGroup id="attendance-column-mode" legend="Como você quer as colunas?">
+          <ChoiceCards
+            choices={COLUMN_MODE_CHOICES}
             value={values.columnMode}
-            onValueChange={(mode) => form.updateValues({ columnMode: mode as ColumnMode })}
-          >
-            <TabsList>
-              <TabsTrigger value="dates">Por datas</TabsTrigger>
-              <TabsTrigger value="count">Por quantidade de aulas</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="dates" className="grid gap-6 pt-4 lg:grid-cols-2">
-              <div className="space-y-6">
-                <DateRangesField
-                  dateRanges={values.dateRanges}
-                  onAdd={form.addDateRange}
-                  onUpdate={form.updateDateRange}
-                  onRemove={form.removeDateRange}
-                />
-                <WeekdaysField
-                  weekdays={values.weekdays}
-                  onToggle={form.toggleWeekday}
-                  onSelect={(weekdays) => form.updateValues({ weekdays })}
-                />
-              </div>
-              <LessonDatesPreview
-                candidateDates={form.candidateDates}
-                excludedDates={values.excludedDates}
-                onToggleDate={form.toggleExcludedDate}
-              />
-            </TabsContent>
-
-            <TabsContent value="count" className="pt-4">
-              <LessonCountField
-                lessonCount={values.lessonCount}
-                onChange={(lessonCount) => form.updateValues({ lessonCount })}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>3. Exportar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ExportPanel
-            summary={
-              <>
-                <p className="text-sm">
-                  {pluralize(sheetData.studentNames.length, 'aluno', 'alunos')} ·{' '}
-                  {pluralize(sheetData.columns.length, 'aula', 'aulas')} ·{' '}
-                  {pluralize(pageCount, 'página', 'páginas')}
-                </p>
-                {pageCount > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Cada página tem até {MAX_COLUMNS_PER_PAGE} aulas para caber na largura de uma
-                    folha A4 deitada. As páginas ficam em abas separadas da planilha; para imprimir
-                    todas, escolha &quot;Imprimir pasta de trabalho inteira&quot;.
-                  </p>
-                )}
-              </>
-            }
-            errors={visibleErrors}
-            isExporting={isExporting}
-            exportError={exportError}
-            downloadLabel="Baixar planilha (.xlsx)"
-            onExport={exportFile}
+            onChange={(columnMode) => form.updateValues({ columnMode })}
           />
-        </CardContent>
-      </Card>
+        </FieldGroup>
+
+        {values.columnMode === 'dates' ? (
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="space-y-8">
+              <DateRangesField
+                dateRanges={values.dateRanges}
+                error={getFieldError(errors, 'dateRanges')}
+                onAdd={form.addDateRange}
+                onUpdate={form.updateDateRange}
+                onRemove={form.removeDateRange}
+              />
+              <WeekdaysField
+                weekdays={values.weekdays}
+                error={getFieldError(errors, 'weekdays')}
+                onToggle={form.toggleWeekday}
+                onSelect={(weekdays) => form.updateValues({ weekdays })}
+              />
+            </div>
+            <LessonDatesPreview
+              candidateDates={form.candidateDates}
+              excludedDates={values.excludedDates}
+              onToggleDate={form.toggleExcludedDate}
+              onIncludeAll={() => form.updateValues({ excludedDates: [] })}
+            />
+          </div>
+        ) : (
+          <LessonCountField
+            lessonCount={values.lessonCount}
+            error={getFieldError(errors, 'lessonCount')}
+            onChange={(lessonCount) => form.updateValues({ lessonCount })}
+          />
+        )}
+      </StepCard>
+
+      <StepCard step={3} totalSteps={TOTAL_STEPS} title="Baixar a lista">
+        <ExportPanel
+          summary={
+            <div className="space-y-2">
+              <p className="text-lg font-medium">
+                {pluralize(sheetData.studentNames.length, 'aluno', 'alunos')} ·{' '}
+                {pluralize(sheetData.columns.length, 'aula', 'aulas')} ·{' '}
+                {pluralize(pageCount, 'página', 'páginas')}
+              </p>
+              {pageCount > 1 && (
+                <p className="text-muted-foreground">
+                  Cada página tem até {MAX_COLUMNS_PER_PAGE} aulas, para caber numa folha A4
+                  deitada. As páginas ficam em abas separadas embaixo da planilha. Na hora de
+                  imprimir no Excel, escolha &quot;Imprimir pasta de trabalho inteira&quot; para
+                  sair tudo de uma vez.
+                </p>
+              )}
+            </div>
+          }
+          downloadLabel="Baixar planilha do Excel"
+          openWith="o Excel (ou Google Planilhas, LibreOffice)"
+          fileExport={fileExport}
+        />
+      </StepCard>
     </div>
   );
 };

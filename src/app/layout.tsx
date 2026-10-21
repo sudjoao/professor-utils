@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { AppHeader } from '@/components/layout/AppHeader';
+import { SkipLink } from '@/components/layout/SkipLink';
+import { TEXT_SIZE_SCRIPT } from '@/lib/display/textSize';
 import { StoreProvider } from '@/store/StoreProvider';
 
 import './globals.css';
@@ -25,8 +27,17 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => (
-  <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+  // The inline script sets `data-text-size` before React hydrates, hence `suppressHydrationWarning`.
+  <html
+    lang="pt-BR"
+    className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    suppressHydrationWarning
+  >
+    <head>
+      <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_SCRIPT }} />
+    </head>
     <body className="flex min-h-full flex-col">
+      <SkipLink />
       <StoreProvider>
         <AppHeader />
         {children}

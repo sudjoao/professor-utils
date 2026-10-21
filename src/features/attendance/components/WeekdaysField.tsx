@@ -1,4 +1,8 @@
+import { Check } from 'lucide-react';
+
+import { FieldGroup } from '@/components/FormField';
 import { Button } from '@/components/ui/button';
+import { fieldId } from '@/lib/forms/formErrors';
 import {
   ALL_WEEKDAYS,
   BUSINESS_DAYS,
@@ -9,41 +13,39 @@ import {
 
 type WeekdaysFieldProps = {
   weekdays: Weekday[];
+  error?: string;
   onToggle: (weekday: Weekday) => void;
   onSelect: (weekdays: Weekday[]) => void;
 };
 
-export const WeekdaysField = ({ weekdays, onToggle, onSelect }: WeekdaysFieldProps) => (
-  <fieldset className="space-y-3">
-    <legend className="text-sm font-medium">Dias da semana com aula</legend>
-
-    <div className="flex flex-wrap gap-1">
-      {ALL_WEEKDAYS.map((weekday) => {
-        const isSelected = weekdays.includes(weekday);
-
-        return (
-          <Button
-            key={weekday}
-            size="sm"
-            variant={isSelected ? 'default' : 'outline'}
-            aria-pressed={isSelected}
+export const WeekdaysField = ({ weekdays, error, onToggle, onSelect }: WeekdaysFieldProps) => (
+  <FieldGroup id={fieldId('weekdays')} legend="Dias da semana com aula" error={error}>
+    <div className="flex flex-wrap gap-2">
+      {ALL_WEEKDAYS.map((weekday) => (
+        <label
+          key={weekday}
+          className="inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-lg border px-3 font-medium capitalize outline-ring outline-offset-2 transition-colors hover:bg-muted has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:outline-3 has-focus-visible:outline-solid"
+        >
+          <input
+            type="checkbox"
+            className="sr-only"
             aria-label={WEEKDAY_LABELS[weekday]}
-            className="w-12"
-            onClick={() => onToggle(weekday)}
-          >
-            {WEEKDAY_SHORT_LABELS[weekday]}
-          </Button>
-        );
-      })}
+            checked={weekdays.includes(weekday)}
+            onChange={() => onToggle(weekday)}
+          />
+          {weekdays.includes(weekday) && <Check className="size-4" aria-hidden />}
+          <span aria-hidden>{WEEKDAY_SHORT_LABELS[weekday]}</span>
+        </label>
+      ))}
     </div>
 
     <div className="flex flex-wrap gap-2">
-      <Button variant="link" size="sm" className="px-0" onClick={() => onSelect(BUSINESS_DAYS)}>
-        Somente dias úteis
+      <Button variant="outline" onClick={() => onSelect(BUSINESS_DAYS)}>
+        Marcar de segunda a sexta
       </Button>
-      <Button variant="link" size="sm" className="px-0" onClick={() => onSelect(ALL_WEEKDAYS)}>
-        Todos os dias
+      <Button variant="outline" onClick={() => onSelect(ALL_WEEKDAYS)}>
+        Marcar todos os dias
       </Button>
     </div>
-  </fieldset>
+  </FieldGroup>
 );

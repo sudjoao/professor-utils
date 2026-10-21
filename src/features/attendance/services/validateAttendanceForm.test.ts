@@ -45,6 +45,9 @@ describe('buildAttendanceSheetData', () => {
   });
 });
 
+const validationMessages = (values: AttendanceFormValues): string[] =>
+  validateAttendanceForm(values).map(({ message }) => message);
+
 describe('validateAttendanceForm', () => {
   it('accepts a complete form', () => {
     expect(validateAttendanceForm(buildValues())).toEqual([]);
@@ -52,12 +55,12 @@ describe('validateAttendanceForm', () => {
 
   it('requires at least one student', () => {
     expect(validateAttendanceForm(buildValues({ studentsText: '  \n ' }))).toEqual([
-      'Informe pelo menos um aluno.',
+      { field: 'studentsText', message: 'Escreva o nome de pelo menos um aluno.' },
     ]);
   });
 
   it('reports incomplete and inverted ranges', () => {
-    const errors = validateAttendanceForm(
+    const errors = validationMessages(
       buildValues({
         dateRanges: [
           { id: '1', start: '2026-03-02', end: '' },
@@ -67,8 +70,8 @@ describe('validateAttendanceForm', () => {
     );
 
     expect(errors).toEqual([
-      'Preencha a data inicial e a data final de todos os períodos.',
-      'A data final de cada período deve ser igual ou posterior à data inicial.',
+      'Preencha as duas datas ("De" e "Até") de todos os períodos.',
+      'Em cada período, a data "Até" precisa ser igual ou depois da data "De".',
     ]);
   });
 
@@ -77,20 +80,28 @@ describe('validateAttendanceForm', () => {
       buildValues({ dateRanges: [{ id: '1', start: '2026-03-07', end: '2026-03-08' }] }),
     );
 
-    expect(errors).toEqual(['Nenhuma data encontrada nos períodos e dias da semana selecionados.']);
+    expect(errors).toEqual([
+      {
+        field: 'dateRanges',
+        message:
+          'Nenhuma data de aula encontrada. Confira o período e os dias da semana escolhidos.',
+      },
+    ]);
   });
 
   it('requires at least one weekday', () => {
     expect(validateAttendanceForm(buildValues({ weekdays: [] }))).toEqual([
-      'Selecione pelo menos um dia da semana.',
+      { field: 'weekdays', message: 'Escolha pelo menos um dia da semana com aula.' },
     ]);
   });
 
   it('limits the lesson count', () => {
-    const errors = validateAttendanceForm(
+    const errors = validationMessages(
       buildValues({ columnMode: 'count', lessonCount: MAX_LESSON_COLUMNS + 1 }),
     );
 
-    expect(errors).toEqual([`Informe uma quantidade de aulas entre 1 e ${MAX_LESSON_COLUMNS}.`]);
+    expect(errors).toEqual([
+      `A quantidade de aulas precisa ser um número de 1 a ${MAX_LESSON_COLUMNS}.`,
+    ]);
   });
 });

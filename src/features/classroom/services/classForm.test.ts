@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 import {
   getClassInfo,
   getStudentNames,
+  isSameName,
   toClassFormValues,
+  wouldReplaceStudents,
 } from '@/features/classroom/services/classForm';
+import type { Classroom } from '@/features/classroom/types';
 
 describe('getStudentNames', () => {
   it('sorts students alphabetically ignoring case and accents', () => {
@@ -43,5 +46,37 @@ describe('toClassFormValues', () => {
       classroomName: '7º A',
       studentsText: 'Ana\nBruno',
     });
+  });
+});
+
+describe('isSameName', () => {
+  it('ignores case, accents and surrounding spaces', () => {
+    expect(isSameName(' 7º a ', '7º A')).toBe(true);
+    expect(isSameName('Matemática', 'matematica')).toBe(true);
+    expect(isSameName('7º A', '7º B')).toBe(false);
+  });
+});
+
+describe('wouldReplaceStudents', () => {
+  const classroom: Classroom = {
+    id: '1',
+    name: '7º A',
+    students: [
+      { id: 'a', name: 'Ana Souza' },
+      { id: 'b', name: 'Bruno Lima' },
+    ],
+  };
+
+  it('is false when no student was typed yet', () => {
+    expect(wouldReplaceStudents([], classroom)).toBe(false);
+  });
+
+  it('is false when the typed students are the same', () => {
+    expect(wouldReplaceStudents(['ana souza', 'Bruno Lima'], classroom)).toBe(false);
+  });
+
+  it('is true when the typed students are different', () => {
+    expect(wouldReplaceStudents(['Ana Souza'], classroom)).toBe(true);
+    expect(wouldReplaceStudents(['Ana Souza', 'Carla Dias'], classroom)).toBe(true);
   });
 });

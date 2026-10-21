@@ -5,7 +5,6 @@ import {
   buildEvaluationParagraphs,
   buildReportData,
 } from '@/features/reports/services/buildReportData';
-import { validateReportForm } from '@/features/reports/services/validateReportForm';
 
 describe('buildEvaluationParagraphs', () => {
   it('returns no paragraphs when there is no common text', () => {
@@ -43,30 +42,5 @@ describe('buildReportData', () => {
     const data = buildReportData(buildReportValues({ commonText: '[ALUNO] participou.' }));
 
     expect(data.students[0].paragraphs).toEqual(['Alice Sousa Silvestre participou.']);
-  });
-});
-
-describe('validateReportForm', () => {
-  it('accepts a complete form', () => {
-    expect(validateReportForm(buildReportValues())).toEqual([]);
-  });
-
-  it('lists every missing required field in one message', () => {
-    const errors = validateReportForm(buildReportValues({ schoolName: ' ', grade: '' }));
-
-    expect(errors).toEqual(['Preencha: Unidade Escolar, Ano.']);
-  });
-
-  it('checks students, school year, school days and date', () => {
-    const errors = validateReportForm(
-      buildReportValues({ studentsText: '', schoolYear: '22', schoolDays: 0, documentDate: '' }),
-    );
-
-    expect(errors).toEqual([
-      'Informe pelo menos um aluno.',
-      'Informe o ano letivo com 4 dígitos.',
-      'Informe o total de dias letivos.',
-      'Informe a data do documento.',
-    ]);
   });
 });

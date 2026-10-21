@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import { useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 
+import { FieldGroup } from '@/components/FormField';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_HEADER_IMAGE, MAX_HEADER_IMAGE_BYTES } from '@/features/reports/constants';
 import { ACCEPTED_HEADER_IMAGE_TYPES } from '@/features/reports/services/headerImage';
@@ -12,6 +13,7 @@ type HeaderImageFieldProps = {
 };
 
 export const HeaderImageField = ({ headerImage, onChange }: HeaderImageFieldProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -22,11 +24,11 @@ export const HeaderImageField = ({ headerImage, onChange }: HeaderImageFieldProp
       return;
     }
     if (!ACCEPTED_HEADER_IMAGE_TYPES.includes(file.type)) {
-      setError('Use uma imagem PNG ou JPG.');
+      setError('Essa imagem não serve. Escolha uma foto ou imagem do tipo PNG ou JPG.');
       return;
     }
     if (file.size > MAX_HEADER_IMAGE_BYTES) {
-      setError('A imagem deve ter no máximo 1 MB.');
+      setError('Essa imagem é grande demais. Escolha uma com no máximo 1 MB.');
       return;
     }
 
@@ -35,43 +37,47 @@ export const HeaderImageField = ({ headerImage, onChange }: HeaderImageFieldProp
   };
 
   return (
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Imagem do cabeçalho</legend>
+    <FieldGroup
+      id="report-header-image"
+      legend="Imagem do topo da página"
+      optional
+      hint="Aparece no topo de todas as páginas. Se não trocar, vai o brasão do DF. A imagem escolhida fica salva neste computador."
+      error={error}
+    >
       <div className="flex flex-wrap items-center gap-4">
         <Image
           src={headerImage ?? DEFAULT_HEADER_IMAGE}
-          alt="Imagem do cabeçalho do relatório"
+          alt={headerImage ? 'Imagem escolhida para o topo' : 'Brasão do Distrito Federal'}
           width={64}
           height={76}
           unoptimized
           className="h-[76px] w-16 rounded-md border object-contain p-1"
         />
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" render={<label />} nativeButton={false}>
-            Trocar imagem
-            <input
-              type="file"
-              accept={ACCEPTED_HEADER_IMAGE_TYPES.join(',')}
-              className="sr-only"
-              onChange={handleFileChange}
-            />
+          <input
+            ref={inputRef}
+            type="file"
+            accept={ACCEPTED_HEADER_IMAGE_TYPES.join(',')}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden
+            onChange={handleFileChange}
+          />
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-10"
+            onClick={() => inputRef.current?.click()}
+          >
+            Escolher outra imagem
           </Button>
           {headerImage && (
-            <Button variant="ghost" size="sm" onClick={() => onChange(null)}>
-              Usar brasão do DF
+            <Button variant="ghost" size="lg" className="h-10" onClick={() => onChange(null)}>
+              Voltar para o brasão do DF
             </Button>
           )}
         </div>
       </div>
-      {error ? (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Aparece no topo de todas as páginas. A imagem escolhida fica salva neste navegador.
-        </p>
-      )}
-    </fieldset>
+    </FieldGroup>
   );
 };

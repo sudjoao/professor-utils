@@ -1,42 +1,47 @@
+import { FieldGroup, FormField } from '@/components/FormField';
+import { NumberField } from '@/components/NumberField';
 import { OptionButtons } from '@/components/OptionButtons';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { SHIFT_OPTIONS, TERM_OPTIONS } from '@/features/reports/constants';
+import { MAX_SCHOOL_DAYS, SHIFT_OPTIONS, TERM_OPTIONS } from '@/features/reports/constants';
 import type { ReportFormValues } from '@/features/reports/types';
+import { fieldId, type FormError, getFieldError } from '@/lib/forms/formErrors';
 
 type TermFieldsProps = Pick<ReportFormValues, 'term' | 'shift' | 'schoolDays'> & {
+  errors: FormError[];
   onChange: (changes: Partial<ReportFormValues>) => void;
 };
 
-export const TermFields = ({ term, shift, schoolDays, onChange }: TermFieldsProps) => (
-  <div className="grid gap-4 sm:grid-cols-3">
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Bimestre</legend>
+export const TermFields = ({ term, shift, schoolDays, errors, onChange }: TermFieldsProps) => (
+  <div className="grid gap-6 sm:grid-cols-3">
+    <FieldGroup id={fieldId('term')} legend="Bimestre">
       <OptionButtons
         options={TERM_OPTIONS}
         value={term}
         onChange={(value) => onChange({ term: value })}
       />
-    </fieldset>
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Turno</legend>
+    </FieldGroup>
+    <FieldGroup id={fieldId('shift')} legend="Turno">
       <OptionButtons
         options={SHIFT_OPTIONS}
         value={shift}
         onChange={(value) => onChange({ shift: value })}
       />
-    </fieldset>
-    <div className="space-y-2">
-      <Label htmlFor="report-school-days">Total de dias letivos</Label>
-      <Input
-        id="report-school-days"
-        type="number"
-        inputMode="numeric"
-        min={1}
-        className="w-32"
-        value={schoolDays || ''}
-        onChange={(event) => onChange({ schoolDays: event.target.valueAsNumber || 0 })}
-      />
-    </div>
+    </FieldGroup>
+    <FormField
+      id={fieldId('schoolDays')}
+      label="Total de dias letivos"
+      hint="Dias letivos do bimestre."
+      error={getFieldError(errors, 'schoolDays')}
+    >
+      {(control) => (
+        <NumberField
+          {...control}
+          name="dias letivos"
+          min={1}
+          max={MAX_SCHOOL_DAYS}
+          value={schoolDays}
+          onChange={(value) => onChange({ schoolDays: value })}
+        />
+      )}
+    </FormField>
   </div>
 );

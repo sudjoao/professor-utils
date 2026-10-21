@@ -1,14 +1,16 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ChoiceCards } from '@/components/ChoiceCards';
+import { FieldGroup, FormField } from '@/components/FormField';
+import { NumberField } from '@/components/NumberField';
 import { Textarea } from '@/components/ui/textarea';
-import { MAX_GRADE_COLUMNS } from '@/features/grades/constants';
-import type { GradeColumnMode, GradesFormValues } from '@/features/grades/types';
+import { COLUMN_MODE_CHOICES, MAX_GRADE_COLUMNS } from '@/features/grades/constants';
+import type { GradesFormValues } from '@/features/grades/types';
+import { fieldId, type FormError, getFieldError } from '@/lib/forms/formErrors';
 
 type GradeColumnsFieldProps = Pick<
   GradesFormValues,
   'columnMode' | 'gradeCount' | 'gradeTitlesText'
 > & {
+  errors: FormError[];
   onChange: (changes: Partial<GradesFormValues>) => void;
 };
 
@@ -16,43 +18,53 @@ export const GradeColumnsField = ({
   columnMode,
   gradeCount,
   gradeTitlesText,
+  errors,
   onChange,
 }: GradeColumnsFieldProps) => (
-  <Tabs
-    value={columnMode}
-    onValueChange={(mode) => onChange({ columnMode: mode as GradeColumnMode })}
-  >
-    <TabsList>
-      <TabsTrigger value="count">Por quantidade</TabsTrigger>
-      <TabsTrigger value="titles">Por título</TabsTrigger>
-    </TabsList>
-
-    <TabsContent value="count" className="space-y-2 pt-4">
-      <Label htmlFor="grades-count">Quantidade de notas</Label>
-      <Input
-        id="grades-count"
-        type="number"
-        inputMode="numeric"
-        min={1}
-        max={MAX_GRADE_COLUMNS}
-        className="w-32"
-        value={gradeCount || ''}
-        onChange={(event) => onChange({ gradeCount: event.target.valueAsNumber || 0 })}
+  <div className="space-y-6">
+    <FieldGroup id="grades-column-mode" legend="Como as colunas das notas vão se chamar?">
+      <ChoiceCards
+        choices={COLUMN_MODE_CHOICES}
+        value={columnMode}
+        onChange={(mode) => onChange({ columnMode: mode })}
       />
-      <p className="text-xs text-muted-foreground">
-        As colunas saem como &quot;Nota 1&quot;, &quot;Nota 2&quot;...
-      </p>
-    </TabsContent>
+    </FieldGroup>
 
-    <TabsContent value="titles" className="space-y-2 pt-4">
-      <Label htmlFor="grades-titles">Títulos das notas (um por linha)</Label>
-      <Textarea
-        id="grades-titles"
-        rows={6}
-        value={gradeTitlesText}
-        placeholder={'Prova 1\nTrabalho em grupo\nParticipação'}
-        onChange={(event) => onChange({ gradeTitlesText: event.target.value })}
-      />
-    </TabsContent>
-  </Tabs>
+    {columnMode === 'count' ? (
+      <FormField
+        id={fieldId('gradeCount')}
+        label="Quantidade de notas"
+        error={getFieldError(errors, 'gradeCount')}
+      >
+        {(control) => (
+          <NumberField
+            {...control}
+            name="notas"
+            min={1}
+            max={MAX_GRADE_COLUMNS}
+            value={gradeCount}
+            onChange={(value) => onChange({ gradeCount: value })}
+          />
+        )}
+      </FormField>
+    ) : (
+      <FormField
+        id={fieldId('gradeTitlesText')}
+        label="Nome de cada nota"
+        hint="Escreva um nome por linha, na ordem em que as colunas devem aparecer."
+        error={getFieldError(errors, 'gradeTitlesText')}
+      >
+        {(control) => (
+          <Textarea
+            {...control}
+            rows={6}
+            className="min-h-40 text-base md:text-base"
+            value={gradeTitlesText}
+            placeholder={'Exemplo:\nProva 1\nTrabalho em grupo\nParticipação'}
+            onChange={(event) => onChange({ gradeTitlesText: event.target.value })}
+          />
+        )}
+      </FormField>
+    )}
+  </div>
 );

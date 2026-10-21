@@ -51,6 +51,9 @@ describe('getSummaryColumnTitle', () => {
   });
 });
 
+const validationMessages = (values: GradesFormValues): string[] =>
+  validateGradesForm(values).map(({ message }) => message);
+
 describe('validateGradesForm', () => {
   it('accepts a complete form', () => {
     expect(validateGradesForm(buildValues())).toEqual([]);
@@ -58,20 +61,23 @@ describe('validateGradesForm', () => {
 
   it('requires at least one student', () => {
     expect(validateGradesForm(buildValues({ studentsText: '' }))).toEqual([
-      'Informe pelo menos um aluno.',
+      { field: 'studentsText', message: 'Escreva o nome de pelo menos um aluno.' },
     ]);
   });
 
   it('limits the grade count', () => {
     expect(validateGradesForm(buildValues({ gradeCount: 0 }))).toEqual([
-      `Informe uma quantidade de notas entre 1 e ${MAX_GRADE_COLUMNS}.`,
+      {
+        field: 'gradeCount',
+        message: `A quantidade de notas precisa ser um número de 1 a ${MAX_GRADE_COLUMNS}.`,
+      },
     ]);
   });
 
   it('requires at least one title in titles mode', () => {
     expect(
-      validateGradesForm(buildValues({ columnMode: 'titles', gradeTitlesText: ' \n ' })),
-    ).toEqual(['Informe o título de pelo menos uma nota.']);
+      validationMessages(buildValues({ columnMode: 'titles', gradeTitlesText: ' \n ' })),
+    ).toEqual(['Escreva o nome de pelo menos uma nota.']);
   });
 
   it('limits the number of titles', () => {
@@ -79,14 +85,14 @@ describe('validateGradesForm', () => {
       '\n',
     );
 
-    expect(validateGradesForm(buildValues({ columnMode: 'titles', gradeTitlesText }))).toEqual([
-      `A lista pode ter no máximo ${MAX_GRADE_COLUMNS} notas (hoje são ${MAX_GRADE_COLUMNS + 1}).`,
+    expect(validationMessages(buildValues({ columnMode: 'titles', gradeTitlesText }))).toEqual([
+      `A lista pode ter no máximo ${MAX_GRADE_COLUMNS} notas, mas você escreveu ${MAX_GRADE_COLUMNS + 1}.`,
     ]);
   });
 
   it('requires a positive max grade', () => {
-    expect(validateGradesForm(buildValues({ maxGrade: 0 }))).toEqual([
-      `Informe uma nota máxima maior que 0 e até ${MAX_GRADE_LIMIT}.`,
+    expect(validationMessages(buildValues({ maxGrade: 0 }))).toEqual([
+      `A nota máxima precisa ser maior que 0 e no máximo ${MAX_GRADE_LIMIT}.`,
     ]);
   });
 });
