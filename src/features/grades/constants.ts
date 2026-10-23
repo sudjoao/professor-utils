@@ -6,6 +6,12 @@ export const DEFAULT_GRADE_COUNT = 4;
 
 export const DEFAULT_MAX_GRADE = 10;
 
+export const DEFAULT_PASSING_GRADE = 5;
+
+export const DEFAULT_WEIGHT = 1;
+
+export const MAX_WEIGHT = 100;
+
 /** Upper bound for the "nota máxima" field, enough for 0–100 point scales. */
 export const MAX_GRADE_LIMIT = 1000;
 

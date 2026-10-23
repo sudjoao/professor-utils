@@ -10,6 +10,14 @@ export type GradesFormValues = ClassFormValues & {
   gradeTitlesText: string;
   summary: GradeSummary;
   maxGrade: number;
+  /** Each grade has its own weight (by position); the weights also go to the sheet. */
+  weighted: boolean;
+  weights: number[];
+  /** "Recup." and "Final" columns: the final grade is the higher of the two. */
+  includeRecovery: boolean;
+  /** "Situação" column: "Na média" or "Abaixo da média". */
+  includeStatus: boolean;
+  passingGrade: number;
 };
 
 export type GradesSheetData = {
@@ -18,5 +26,10 @@ export type GradesSheetData = {
   gradeTitles: string[];
   summary: GradeSummary;
   maxGrade: number;
+  /** One weight per grade, or `null` when every grade weighs the same. */
+  weights: number[] | null;
+  includeRecovery: boolean;
+  includeStatus: boolean;
+  passingGrade: number;
   style: SheetStyle;
 };

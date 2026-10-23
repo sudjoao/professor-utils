@@ -4,6 +4,7 @@ import { buildSheetStyle } from '@/features/classroom/__fixtures__/sheetStyle';
 import { MAX_GRADE_COLUMNS, MAX_GRADE_LIMIT } from '@/features/grades/constants';
 import {
   buildGradesSheetData,
+  getResultColumnTitles,
   getSummaryColumnTitle,
 } from '@/features/grades/services/buildGradesSheetData';
 import { validateGradesForm } from '@/features/grades/services/validateGradesForm';
@@ -20,6 +21,11 @@ const buildValues = (overrides: Partial<GradesFormValues> = {}): GradesFormValue
   gradeTitlesText: '',
   summary: 'average',
   maxGrade: 10,
+  weighted: false,
+  weights: [],
+  includeRecovery: false,
+  includeStatus: false,
+  passingGrade: 5,
   ...overrides,
 });
 
@@ -100,5 +106,41 @@ describe('validateGradesForm', () => {
     expect(validationMessages(buildValues({ maxGrade: 0 }))).toEqual([
       `A nota máxima precisa ser maior que 0 e no máximo ${MAX_GRADE_LIMIT}.`,
     ]);
+  });
+
+  it('requires positive weights when the grades are weighted', () => {
+    expect(validationMessages(buildValues({ weighted: true, weights: [2, 0] }))).toEqual([
+      'Cada peso precisa ser um número maior que 0 e no máximo 100.',
+    ]);
+    expect(validateGradesForm(buildValues({ weighted: true, weights: [2] }))).toEqual([]);
+  });
+
+  it('checks the passing grade only when it is used', () => {
+    expect(validateGradesForm(buildValues({ passingGrade: 0 }))).toEqual([]);
+    expect(validationMessages(buildValues({ includeStatus: true, passingGrade: 12 }))).toEqual([
+      'A média mínima não pode passar da nota máxima (10).',
+    ]);
+  });
+});
+
+describe('getResultColumnTitles', () => {
+  it('lists the calculated columns in order', () => {
+    expect(
+      getResultColumnTitles({ summary: 'average', includeRecovery: true, includeStatus: true }),
+    ).toEqual(['Média', 'Recup.', 'Final', 'Situação']);
+    expect(
+      getResultColumnTitles({ summary: 'none', includeRecovery: true, includeStatus: true }),
+    ).toEqual([]);
+  });
+});
+
+describe('buildGradesSheetData weights', () => {
+  it('gives every grade a weight, 1 when missing', () => {
+    const data = buildGradesSheetData(
+      buildValues({ weighted: true, weights: [2] }),
+      buildSheetStyle(),
+    );
+
+    expect(data.weights).toEqual([2, 1, 1]);
   });
 });

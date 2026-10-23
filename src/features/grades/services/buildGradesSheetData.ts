@@ -1,6 +1,6 @@
 import { getClassInfo, getStudentNames } from '@/features/classroom/services/classForm';
 import type { SheetStyle } from '@/features/classroom/types';
-import { SUMMARY_OPTIONS } from '@/features/grades/constants';
+import { DEFAULT_WEIGHT, SUMMARY_OPTIONS } from '@/features/grades/constants';
 import type { GradeSummary, GradesFormValues, GradesSheetData } from '@/features/grades/types';
 import { parseLines } from '@/lib/text/parseLines';
 
@@ -18,14 +18,47 @@ export const getGradeTitles = ({
 export const getSummaryColumnTitle = (summary: GradeSummary): string | undefined =>
   SUMMARY_OPTIONS.find(({ value }) => value === summary)?.columnTitle;
 
+/** The weight of each grade, by position; grades without one weigh `DEFAULT_WEIGHT`. */
+export const getGradeWeights = (weights: number[], gradeCount: number): number[] =>
+  Array.from({ length: gradeCount }, (_, index) => weights[index] ?? DEFAULT_WEIGHT);
+
+type ResultOptions = Pick<GradesSheetData, 'summary' | 'includeRecovery' | 'includeStatus'>;
+
+/** The calculated columns after the grades, in order. */
+export const getResultColumnTitles = ({
+  summary,
+  includeRecovery,
+  includeStatus,
+}: ResultOptions): string[] => {
+  const summaryTitle = getSummaryColumnTitle(summary);
+
+  return summaryTitle
+    ? [
+        summaryTitle,
+        ...(includeRecovery ? ['Recup.', 'Final'] : []),
+        ...(includeStatus ? ['Situação'] : []),
+      ]
+    : [];
+};
+
 export const buildGradesSheetData = (
   values: GradesFormValues,
   style: SheetStyle,
-): GradesSheetData => ({
-  classInfo: getClassInfo(values),
-  studentNames: getStudentNames(values),
-  gradeTitles: getGradeTitles(values),
-  summary: values.summary,
-  maxGrade: values.maxGrade,
-  style,
-});
+): GradesSheetData => {
+  const gradeTitles = getGradeTitles(values);
+  // Recovery and status need a calculated column to compare with.
+  const hasSummary = values.summary !== 'none';
+
+  return {
+    classInfo: getClassInfo(values),
+    studentNames: getStudentNames(values),
+    gradeTitles,
+    summary: values.summary,
+    maxGrade: values.maxGrade,
+    weights: values.weighted ? getGradeWeights(values.weights, gradeTitles.length) : null,
+    includeRecovery: hasSummary && values.includeRecovery,
+    includeStatus: hasSummary && values.includeStatus,
+    passingGrade: values.passingGrade,
+    style,
+  };
+};

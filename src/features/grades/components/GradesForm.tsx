@@ -22,8 +22,7 @@ const TOTAL_STEPS = 4;
 const loadWorkbookBuilder = () => import('@/features/grades/services/buildGradesWorkbook');
 
 export const GradesForm = () => {
-  const { values, updateValues, sheetData, sheetStyle, errors, summaryColumnTitle } =
-    useGradesForm();
+  const { values, updateValues, sheetData, sheetStyle, errors, resultTitles } = useGradesForm();
 
   const fileExport = useFileExport({
     errors,
@@ -64,14 +63,17 @@ export const GradesForm = () => {
             errors={visibleErrors}
             onChange={updateValues}
           />
-          <GradeColumnsPreview
-            gradeTitles={sheetData.gradeTitles}
-            summaryColumnTitle={summaryColumnTitle}
-          />
+          <GradeColumnsPreview gradeTitles={sheetData.gradeTitles} resultTitles={resultTitles} />
         </div>
         <GradeSettingsField
           summary={values.summary}
           maxGrade={values.maxGrade}
+          weighted={values.weighted}
+          weights={values.weights}
+          includeRecovery={values.includeRecovery}
+          includeStatus={values.includeStatus}
+          passingGrade={values.passingGrade}
+          gradeTitles={sheetData.gradeTitles}
           errors={visibleErrors}
           onChange={updateValues}
         />
@@ -87,11 +89,7 @@ export const GradesForm = () => {
       >
         <SheetStyleField
           preferences={sheetStyle.preferences}
-          columnTitles={
-            summaryColumnTitle
-              ? [...sheetData.gradeTitles, summaryColumnTitle]
-              : sheetData.gradeTitles
-          }
+          columnTitles={[...sheetData.gradeTitles, ...resultTitles]}
           studentNames={sheetData.studentNames}
           onChange={sheetStyle.updatePreferences}
         />

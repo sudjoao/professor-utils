@@ -3,10 +3,14 @@ import { useMemo, useState } from 'react';
 import { useClassDraft } from '@/features/classroom/hooks/useClassDraft';
 import { useSheetStyle } from '@/features/classroom/hooks/useSheetStyle';
 import type { ClassFormValues } from '@/features/classroom/types';
-import { DEFAULT_GRADE_COUNT, DEFAULT_MAX_GRADE } from '@/features/grades/constants';
+import {
+  DEFAULT_GRADE_COUNT,
+  DEFAULT_MAX_GRADE,
+  DEFAULT_PASSING_GRADE,
+} from '@/features/grades/constants';
 import {
   buildGradesSheetData,
-  getSummaryColumnTitle,
+  getResultColumnTitles,
 } from '@/features/grades/services/buildGradesSheetData';
 import { validateGradesForm } from '@/features/grades/services/validateGradesForm';
 import type { GradesFormValues } from '@/features/grades/types';
@@ -20,6 +24,11 @@ const INITIAL_VALUES: GradeValues = {
   gradeTitlesText: '',
   summary: 'average',
   maxGrade: DEFAULT_MAX_GRADE,
+  weighted: false,
+  weights: [],
+  includeRecovery: false,
+  includeStatus: false,
+  passingGrade: DEFAULT_PASSING_GRADE,
 };
 
 export const useGradesForm = () => {
@@ -41,7 +50,7 @@ export const useGradesForm = () => {
     [values, sheetStyle.style],
   );
   const errors = useMemo(() => validateGradesForm(values), [values]);
-  const summaryColumnTitle = getSummaryColumnTitle(values.summary);
+  const resultTitles = getResultColumnTitles(sheetData);
 
-  return { values, updateValues, sheetData, sheetStyle, errors, summaryColumnTitle };
+  return { values, updateValues, sheetData, sheetStyle, errors, resultTitles };
 };

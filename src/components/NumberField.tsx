@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { formatNumberInput, parseNumberInput, stepNumber } from '@/lib/number/numberInput';
 
 type NumberFieldProps = ControlProps & {
+  /** For a field without a visible `<label>` of its own. */
+  'aria-label'?: string;
   value: number;
   min: number;
   max: number;
