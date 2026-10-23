@@ -1,11 +1,10 @@
 import { CircleCheck, Download } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 
+import { ErrorSummary } from '@/components/ErrorSummary';
 import { MobileDownloadBar } from '@/components/MobileDownloadBar';
 import { Button } from '@/components/ui/button';
 import type { FileExport } from '@/lib/files/useFileExport';
-import { focusField } from '@/lib/forms/focusField';
-import { fieldId } from '@/lib/forms/formErrors';
 
 type ExportPanelProps = {
   summary: ReactNode;
@@ -27,7 +26,6 @@ export const ExportPanel = ({
   const { visibleErrors, failedAttempts, isExporting, exportError, downloadedFileName } =
     fileExport;
   const { preload } = fileExport;
-  const errorSummaryRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Starts downloading the file libraries a bit before the teacher reaches this step.
@@ -50,47 +48,11 @@ export const ExportPanel = ({
     return () => observer.disconnect();
   }, [preload]);
 
-  // A blocked download brings the teacher to the list of what is missing.
-  useEffect(() => {
-    if (failedAttempts > 0) {
-      errorSummaryRef.current?.focus();
-    }
-  }, [failedAttempts]);
-
   return (
     <div ref={panelRef} className="space-y-4">
       {summary}
 
-      {visibleErrors.length > 0 && (
-        <div
-          ref={errorSummaryRef}
-          tabIndex={-1}
-          role="alert"
-          className="space-y-2 rounded-xl border-2 border-destructive p-4"
-        >
-          <p className="font-semibold text-destructive">Antes de baixar, falta arrumar:</p>
-          <ul className="list-inside list-disc space-y-1">
-            {visibleErrors.map(({ field, message }) => (
-              <li key={`${field}-${message}`}>
-                {field ? (
-                  <a
-                    href={`#${fieldId(field)}`}
-                    className="underline underline-offset-4"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      focusField(field);
-                    }}
-                  >
-                    {message}
-                  </a>
-                ) : (
-                  message
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ErrorSummary errors={visibleErrors} failedAttempts={failedAttempts} />
       {exportError && (
         <p className="font-medium text-destructive" role="alert">
           {exportError}

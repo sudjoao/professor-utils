@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
-import { TOOL_LIST } from '@/config/tools';
+import { MAIN_TOOLS, OTHER_TOOLS, OTHER_TOOLS_ANCHOR, type Tool } from '@/config/tools';
 import { BackupReminder } from '@/features/backup/components/BackupReminder';
 
 const HOW_IT_WORKS = [
@@ -11,6 +11,30 @@ const HOW_IT_WORKS = [
   'Responda às perguntas de cada passo. Os exemplos mostram o que escrever.',
   'Clique no botão de baixar e abra o arquivo no Excel ou no Word.',
 ];
+
+const ToolCards = ({ tools }: { tools: Tool[] }) => (
+  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {tools.map(({ href, title, description, icon: Icon }) => (
+      <li key={href}>
+        <Link href={href} className="group block h-full rounded-xl">
+          <Card className="h-full text-base transition-shadow group-hover:shadow-md group-hover:ring-foreground/30">
+            <CardHeader className="gap-2">
+              <Icon className="mb-1 size-8 text-primary" aria-hidden />
+              <h3 className="font-heading text-xl font-semibold">{title}</h3>
+              <CardDescription className="text-base">{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="mt-auto">
+              <span className="inline-flex items-center gap-2 font-medium underline-offset-4 group-hover:underline">
+                Abrir
+                <ArrowRight className="size-4" aria-hidden />
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
+      </li>
+    ))}
+  </ul>
+);
 
 const HomePage = () => (
   <PageContainer className="space-y-10">
@@ -27,27 +51,21 @@ const HomePage = () => (
       <h2 id="tools-heading" className="font-heading text-2xl font-semibold">
         O que você quer fazer?
       </h2>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {TOOL_LIST.map(({ href, title, description, icon: Icon }) => (
-          <li key={href}>
-            <Link href={href} className="group block h-full rounded-xl">
-              <Card className="h-full text-base transition-shadow group-hover:shadow-md group-hover:ring-foreground/30">
-                <CardHeader className="gap-2">
-                  <Icon className="mb-1 size-8 text-primary" aria-hidden />
-                  <h3 className="font-heading text-xl font-semibold">{title}</h3>
-                  <CardDescription className="text-base">{description}</CardDescription>
-                </CardHeader>
-                <CardContent className="mt-auto">
-                  <span className="inline-flex items-center gap-2 font-medium underline-offset-4 group-hover:underline">
-                    Abrir
-                    <ArrowRight className="size-4" aria-hidden />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <ToolCards tools={MAIN_TOOLS} />
+    </section>
+
+    <section
+      id={OTHER_TOOLS_ANCHOR}
+      aria-labelledby="other-tools-heading"
+      className="scroll-mt-6 space-y-4"
+    >
+      <h2 id="other-tools-heading" className="font-heading text-2xl font-semibold">
+        Outras ferramentas
+      </h2>
+      <p className="text-muted-foreground">
+        Usam a mesma turma e os mesmos nomes que você já escreveu.
+      </p>
+      <ToolCards tools={OTHER_TOOLS} />
     </section>
 
     <section aria-labelledby="how-heading" className="space-y-4">

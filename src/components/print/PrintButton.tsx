@@ -9,6 +9,8 @@ export const PRINT_ROOT_ID = 'print-root';
 type PrintButtonProps = {
   label?: string;
   orientation: 'portrait' | 'landscape';
+  /** Page margin; labels need `0`, as their sheet already has the margins. */
+  pageMargin?: string;
   /** Runs first; returning `false` cancels (e.g. the form still has errors). */
   onBeforePrint?: () => boolean;
   /** Renders the pages to print, only when printing. */
@@ -22,6 +24,7 @@ type PrintButtonProps = {
 export const PrintButton = ({
   label = 'Imprimir ou salvar em PDF',
   orientation,
+  pageMargin = '10mm',
   onBeforePrint,
   renderContent,
 }: PrintButtonProps) => {
@@ -59,7 +62,7 @@ export const PrintButton = ({
       {isPrinting &&
         createPortal(
           <div id={PRINT_ROOT_ID}>
-            <style>{`@page { size: A4 ${orientation}; margin: 10mm; }`}</style>
+            <style>{`@page { size: A4 ${orientation}; margin: ${pageMargin}; }`}</style>
             {renderContent()}
           </div>,
           document.body,

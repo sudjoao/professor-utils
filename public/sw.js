@@ -6,10 +6,10 @@
  *   full page load, which gets the saved page.
  * Plain JavaScript in public/ so it is served as is at /sw.js (see the headers in next.config.ts).
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const PAGES_CACHE = `pages-${VERSION}`;
 const ASSETS_CACHE = `assets-${VERSION}`;
-const PAGES = ['/', '/attendance', '/grades', '/reports', '/help'];
+const PAGES = ['/', '/attendance', '/grades', '/reports', '/labels', '/data', '/help'];
 const MAX_ASSETS = 300;
 const ASSET_URL = /\/_next\/static\/[^"'\s)\\]+/g;
 

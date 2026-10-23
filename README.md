@@ -15,6 +15,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Imprimir ou salvar em PDF** sem Excel ou Word: as três ferramentas montam a folha para impressão no próprio navegador (mesmas páginas, cores e legenda), e a janela de impressão já oferece "Salvar como PDF"
 
+- [x] **Etiquetas com nomes**: para folhas A4 de etiquetas comuns (21, 14 ou 16 por folha, medidas Pimaco/Avery) ou papel comum para recortar, com várias por aluno, turma, disciplina ou outro texto, e "começar na etiqueta nº" para reaproveitar folhas
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -75,6 +77,7 @@ src/
                         #   aparência das planilhas (sheetStyle), card "Turma e alunos"
                         #   e layout base das planilhas (classSheet)
     backup/             # cópia de segurança dos dados do navegador (salvar e carregar .json)
+    labels/             # etiquetas com nomes (folhas A4 de etiquetas, medidas em mm)
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { downloadBlob } from '@/lib/files/downloadBlob';
 import type { FormError } from '@/lib/forms/formErrors';
+import { useValidation } from '@/lib/forms/useValidation';
 
 type FileExportOptions = {
   errors: FormError[];
@@ -16,8 +17,7 @@ type FileExportOptions = {
 const ignoreError = () => undefined;
 
 export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExportOptions) => {
-  const [hasTriedExport, setHasTriedExport] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
+  const validation = useValidation(errors);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState('');
   const [downloadedFileName, setDownloadedFileName] = useState('');
@@ -27,15 +27,9 @@ export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExpo
 
   /** Shows the errors (and brings the teacher to them); `true` when there are none. */
   const validate = (): boolean => {
-    setHasTriedExport(true);
     setExportError('');
     setDownloadedFileName('');
-
-    if (errors.length > 0) {
-      setFailedAttempts((count) => count + 1);
-      return false;
-    }
-    return true;
+    return validation.validate();
   };
 
   const exportFile = async () => {
@@ -56,10 +50,9 @@ export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExpo
   };
 
   return {
-    // Errors only show up after the first attempt, so the form does not start all red.
-    visibleErrors: hasTriedExport ? errors : [],
+    visibleErrors: validation.visibleErrors,
     /** Grows on every click blocked by errors, so the page can bring the teacher to them. */
-    failedAttempts,
+    failedAttempts: validation.failedAttempts,
     isExporting,
     exportError,
     downloadedFileName,

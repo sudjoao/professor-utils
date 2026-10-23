@@ -3,15 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { TOOL_LIST } from '@/config/tools';
+import { MAIN_TOOLS, OTHER_TOOLS, OTHER_TOOLS_ANCHOR } from '@/config/tools';
 import { cn } from '@/lib/utils';
+
+const OTHER_TOOLS_HREF = `/#${OTHER_TOOLS_ANCHOR}`;
 
 const LINKS = [
   { href: '/', title: 'Início' },
-  ...TOOL_LIST,
+  ...MAIN_TOOLS,
+  { href: OTHER_TOOLS_HREF, title: 'Outras ferramentas' },
   { href: '/data', title: 'Meus dados' },
   { href: '/help', title: 'Ajuda' },
 ];
+
+const isCurrentLink = (href: string, pathname: string): boolean =>
+  href === OTHER_TOOLS_HREF
+    ? OTHER_TOOLS.some((tool) => tool.href === pathname)
+    : href === pathname;
 
 export const NavLinks = () => {
   const pathname = usePathname();
@@ -20,7 +28,7 @@ export const NavLinks = () => {
     <nav aria-label="Ferramentas" className="w-full">
       <ul className="flex flex-wrap gap-2">
         {LINKS.map(({ href, title }) => {
-          const isCurrent = pathname === href;
+          const isCurrent = isCurrentLink(href, pathname);
 
           return (
             <li key={href}>
