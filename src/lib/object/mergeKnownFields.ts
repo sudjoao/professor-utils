@@ -16,7 +16,7 @@ export const mergeKnownFields = <Defaults extends object>(
     const isSameType =
       candidate !== undefined &&
       (defaultValue === null
-        ? candidate === null || typeof candidate === 'string'
+        ? candidate === null || typeof candidate === 'string' || typeof candidate === 'number'
         : typeof candidate === typeof defaultValue &&
           Array.isArray(candidate) === Array.isArray(defaultValue));
 

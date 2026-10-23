@@ -56,19 +56,22 @@ export const useReportForm = () => {
     selectStudentEvaluations,
     INITIAL_STUDENT_EVALUATIONS,
   );
-  const classTermKey = getClassTermKey(classDraft.classroomName, settings.term);
   const today = useToday();
+  const currentTerm = today ? findCurrentOrLastTerm(today) : undefined;
+  // Until the teacher picks a term, the report is about the current one (school calendar).
+  const term = settings.term ?? currentTerm?.term ?? 1;
+  const classTermKey = getClassTermKey(classDraft.classroomName, term);
 
   const schoolYear = localValues.schoolYear || today?.slice(0, 4) || '';
-  const calendarSchoolDays = getSchoolTerm(Number(schoolYear), settings.term)?.schoolDays;
+  const calendarSchoolDays = getSchoolTerm(Number(schoolYear), term)?.schoolDays;
   const isSchoolDaysFromCalendar = !settings.schoolDays && calendarSchoolDays !== undefined;
-  const currentTerm = today ? findCurrentOrLastTerm(today) : undefined;
 
   const values = useMemo<ReportFormValues>(
     () => ({
       ...classDraft,
       ...localValues,
       ...settings,
+      term,
       // Blank fields count as today, like the attendance dates, and as the school calendar.
       schoolYear,
       documentDate: localValues.documentDate || today || '',
@@ -81,6 +84,7 @@ export const useReportForm = () => {
       classDraft,
       localValues,
       settings,
+      term,
       today,
       schoolYear,
       calendarSchoolDays,

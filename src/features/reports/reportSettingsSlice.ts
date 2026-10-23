@@ -9,7 +9,7 @@ export const INITIAL_REPORT_SETTINGS: ReportSettings = {
   stage: DEFAULT_STAGE,
   grade: '',
   shift: 'morning',
-  term: 1,
+  term: null,
   schoolDays: 0,
   city: '',
   teacherRegistration: '',

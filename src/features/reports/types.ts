@@ -12,7 +12,8 @@ export type ReportSettings = {
   stage: string;
   grade: string;
   shift: Shift;
-  term: Term;
+  /** `null` until the teacher picks one: the report follows the school calendar meanwhile. */
+  term: Term | null;
   schoolDays: number;
   city: string;
   teacherRegistration: string;
@@ -27,7 +28,8 @@ export type StudentEvaluation = {
 };
 
 export type ReportFormValues = ClassFormValues &
-  ReportSettings & {
+  Omit<ReportSettings, 'term'> & {
+    term: Term;
     schoolYear: string;
     documentDate: IsoDate;
     commonText: string;
