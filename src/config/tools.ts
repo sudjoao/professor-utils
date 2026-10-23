@@ -5,6 +5,7 @@ import {
   GraduationCap,
   LayoutGrid,
   type LucideIcon,
+  Mail,
   Tags,
 } from 'lucide-react';
 
@@ -77,6 +78,15 @@ export const TOOLS = {
       'Monte o mapa de onde cada aluno senta, troque lugares com dois cliques e imprima.',
     result: 'o mapa da sala salvo para a turma e pronto para imprimir.',
     icon: LayoutGrid,
+  },
+  parentNotes: {
+    href: '/parent-notes',
+    group: 'other',
+    title: 'Bilhete aos responsáveis',
+    description:
+      'Escreva um bilhete uma vez e imprima um para cada aluno, já com o nome, com parte "Ciente" para devolver.',
+    result: 'os bilhetes prontos para imprimir, de 1 a 4 por folha.',
+    icon: Mail,
   },
 } satisfies Record<string, Tool>;
 

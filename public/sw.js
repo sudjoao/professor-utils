@@ -6,7 +6,7 @@
  *   full page load, which gets the saved page.
  * Plain JavaScript in public/ so it is served as is at /sw.js (see the headers in next.config.ts).
  */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const PAGES_CACHE = `pages-${VERSION}`;
 const ASSETS_CACHE = `assets-${VERSION}`;
 const PAGES = [

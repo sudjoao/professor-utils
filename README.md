@@ -21,6 +21,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Mapa de sala**: fileiras e carteiras, alunos em ordem alfabética ou sorteados, troca de lugares com dois cliques (sem arrastar), salvo por turma e pronto para imprimir
 
+- [x] **Bilhete aos responsáveis**: um texto com `[ALUNO]` vira um bilhete por aluno (escola, local, data e assinatura já preenchidos), com parte "Ciente" para recortar e devolver, de 1 a 4 por folha
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -84,6 +86,7 @@ src/
     labels/             # etiquetas com nomes (folhas A4 de etiquetas, medidas em mm)
     draw/               # sorteio de aluno e formação de grupos
     seating/            # mapa de sala (salvo por turma)
+    parentNotes/        # bilhete aos responsáveis
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts
