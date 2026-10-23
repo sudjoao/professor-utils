@@ -11,6 +11,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 - [x] **Lista de alunos de qualquer jeito**: ao colar, saem números, matrículas, datas e o título da coluna, e de uma tabela do Excel fica só a coluna dos nomes (com "Desfazer"); também abre .xlsx e .csv (inclusive CSV do Excel em Windows-1252) e passa nomes em MAIÚSCULAS para "Ana Souza"
 - [x] **Turma compartilhada**: turma, disciplina, professor(a) e alunos ficam salvos como rascunho e já aparecem preenchidos nas três ferramentas, inclusive depois de recarregar a página
 
+- [x] **Cópia de segurança** (`/data`, "Meus dados"): salva num arquivo `.json` as turmas, o rascunho, os dados da escola, a aparência das planilhas e a imagem do cabeçalho, e carrega de volta (com "Desfazer") em outro computador; a página inicial lembra de fazer uma cópia a cada 30 dias quando há turmas salvas
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -70,6 +72,7 @@ src/
     classroom/          # domínio compartilhado: turmas salvas, rascunho da turma (classDraft),
                         #   aparência das planilhas (sheetStyle), card "Turma e alunos"
                         #   e layout base das planilhas (classSheet)
+    backup/             # cópia de segurança dos dados do navegador (salvar e carregar .json)
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts

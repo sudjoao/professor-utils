@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { TOOL_LIST } from '@/config/tools';
+import { BackupReminder } from '@/features/backup/components/BackupReminder';
 
 const HOW_IT_WORKS = [
   'Escolha a ferramenta e escreva (ou cole) os nomes dos alunos.',
@@ -19,6 +20,8 @@ const HomePage = () => (
         Ferramentas simples para preparar listas e relatórios da sua turma em poucos minutos.
       </p>
     </section>
+
+    <BackupReminder />
 
     <section aria-labelledby="tools-heading" className="space-y-4">
       <h2 id="tools-heading" className="font-heading text-2xl font-semibold">

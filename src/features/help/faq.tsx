@@ -42,7 +42,21 @@ export const FAQ_ITEMS: FaqItem[] = [
           <li>limpar o histórico com &quot;dados de navegação&quot; apaga as turmas salvas;</li>
           <li>numa janela anônima, nada fica salvo depois de fechar.</li>
         </ul>
+        <p>
+          Para não correr esse risco, guarde uma cópia em <strong>Meus dados</strong>.
+        </p>
       </>
+    ),
+  },
+  {
+    question: 'Como levo minhas turmas para outro computador?',
+    answer: (
+      <p>
+        Em <strong>Meus dados</strong>, clique em &quot;Salvar uma cópia no computador&quot;. Leve o
+        arquivo (pendrive, Google Drive ou e-mail) e, no outro computador, abra{' '}
+        <strong>Meus dados</strong> e clique em &quot;Escolher o arquivo da cópia&quot;. Fazer uma
+        cópia de vez em quando também protege se o navegador for limpo.
+      </p>
     ),
   },
   {
