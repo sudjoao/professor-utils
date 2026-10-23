@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is([data-theme='dark'] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -39,6 +39,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-border: var(--success-border);
+  --color-note: var(--note);
+  --color-note-foreground: var(--note-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -81,9 +86,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Confirmations ("Pronto!", "Desfazer") and calendar marks (holidays, recesses). */
+  --success: oklch(0.98 0.02 150);
+  --success-foreground: oklch(0.26 0.06 150);
+  --success-border: oklch(0.5 0.13 150);
+  --note: oklch(0.55 0.13 60);
+  --note-foreground: oklch(0.42 0.1 60);
 }
 
-.dark {
+:root[data-theme='dark'] {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -99,8 +111,8 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(1 0 0 / 25%);
+  --input: oklch(1 0 0 / 40%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -115,6 +127,30 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --success: oklch(0.3 0.06 150);
+  --success-foreground: oklch(0.95 0.03 150);
+  --success-border: oklch(0.68 0.14 150);
+  --note: oklch(0.78 0.13 75);
+  --note-foreground: oklch(0.86 0.11 80);
+}
+
+/* Light, with pure black text and borders: for low vision or a very bright room. */
+:root[data-theme='contrast'] {
+  --foreground: oklch(0 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.2 0 0);
+  --border: oklch(0 0 0);
+  --input: oklch(0 0 0);
+  --ring: oklch(0.42 0.25 264);
+  --destructive: oklch(0.45 0.22 27);
+  --success: oklch(1 0 0);
+  --success-foreground: oklch(0 0 0);
+  --success-border: oklch(0.38 0.12 150);
+  --note: oklch(0.38 0.11 50);
+  --note-foreground: oklch(0.3 0.09 50);
 }
 
 @layer base {
@@ -144,6 +180,11 @@
 :focus-visible {
   outline: 3px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* Cards draw their edge with a faint ring; in high contrast it becomes a solid black line. */
+:root[data-theme='contrast'] [data-slot='card'] {
+  box-shadow: 0 0 0 2px var(--foreground);
 }
 
 /* The main area only receives focus from the "skip to content" link; no ring around the page. */

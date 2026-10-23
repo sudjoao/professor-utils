@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { TOOL_LIST } from '@/config/tools';
 import { cn } from '@/lib/utils';
 
-const LINKS = [{ href: '/', title: 'Início' }, ...TOOL_LIST];
+const LINKS = [{ href: '/', title: 'Início' }, ...TOOL_LIST, { href: '/help', title: 'Ajuda' }];
 
 export const NavLinks = () => {
   const pathname = usePathname();

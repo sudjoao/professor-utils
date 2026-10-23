@@ -1,12 +1,14 @@
 import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
+import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { UndoNotice } from '@/components/UndoNotice';
 import { Button } from '@/components/ui/button';
 import { ClassInfoFields } from '@/features/classroom/components/ClassInfoFields';
 import { SavedClassrooms } from '@/features/classroom/components/SavedClassrooms';
 import { StudentsField } from '@/features/classroom/components/StudentsField';
+import { CLASSROOM_HELP } from '@/features/classroom/help';
 import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
 import { focusField } from '@/lib/forms/focusField';
 import { type FormError, getFieldError } from '@/lib/forms/formErrors';
@@ -70,6 +72,18 @@ export const ClassroomCard = ({
       step={step}
       totalSteps={totalSteps}
       title="Turma e alunos"
+      status={
+        <SaveStatus
+          value={[
+            values.classroomName,
+            values.subject,
+            values.teacherName,
+            values.studentsText,
+            values.sortStudents,
+          ].join('|')}
+        />
+      }
+      help={CLASSROOM_HELP}
       description="Escreva os nomes dos alunos ou use uma turma que você já salvou. O que você escrever aqui aparece também nas outras ferramentas."
     >
       <SavedClassrooms

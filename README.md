@@ -15,11 +15,15 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
 
-- texto base de 18px, controle **A− / A+** no topo (salvo no navegador) e alto contraste;
+- texto base de 18px, controle **A− / A+** e cores **Claro / Escuro / Alto contraste** no topo (salvos no navegador e aplicados antes da primeira pintura);
 - linguagem simples, um passo por card ("Passo 1 de 4") e exemplos em todos os campos;
 - erros aparecem ao lado do campo e num resumo que recebe o foco, com links para cada campo;
 - tudo funciona pelo teclado (link "Pular para o conteúdo", foco sempre visível) e com leitor de tela;
 - depois do download, um aviso diz onde encontrar o arquivo.
+- cada passo tem "Como fazer este passo?", e `/help` reúne as perguntas frequentes;
+- o que fica salvo mostra "Salvo neste computador", e os formulários esperam os dados salvos (`RestoreGate`) para não parecerem vazios;
+- turmas salvas são botões ("Usar esta turma", "Apagar"), não um menu suspenso;
+- no celular, o botão de baixar fica fixo embaixo enquanto o último passo não está na tela.
 - nada de "Tem certeza?": as ações acontecem na hora e um aviso ao lado oferece **Desfazer** (`UndoNotice` + `useUndoNotice`), sem sumir sozinho.
 
 Ao criar telas novas, use os componentes de `src/components` (abaixo) em vez de montar label/erro à mão, e prefira `ChoiceCards`/`OptionButtons` a abas para escolhas.
@@ -74,7 +78,11 @@ src/
     ChoiceCards.tsx     # escolha única com opções grandes e explicadas (substitui abas)
     OptionButtons.tsx   # escolha única compacta (bimestre, turno, cálculo...)
     ExportPanel.tsx     # resumo, erros com links, botão de download e aviso de sucesso
-    layout/             # header, navegação, controle A−/A+, link "pular", container de página
+    MobileDownloadBar.tsx # botão de baixar fixo no celular
+    UndoNotice.tsx      # aviso com "Desfazer" ao lado da ação (com lib/react/useUndoNotice)
+    SaveStatus.tsx      # "Salvando... / Salvo neste computador"
+    RestoreGate.tsx     # espera os dados salvos no navegador antes de mostrar o formulário
+    layout/             # header, navegação, controles de texto e cores, link "pular", container
     ui/                 # componentes gerados pelo shadcn (não editar à mão)
   config/tools.ts       # lista de ferramentas (título, descrição, rota, ícone)
   lib/                  # utilitários genéricos (texto, datas, números, excel, arquivos,

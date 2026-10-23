@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CircleHelp, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -64,6 +64,17 @@ const HomePage = () => (
           </li>
         ))}
       </ol>
+    </section>
+
+    <section className="flex flex-wrap items-center gap-3 rounded-xl bg-muted p-4">
+      <CircleHelp className="size-6 shrink-0 text-primary" aria-hidden />
+      <p className="flex-1">Ficou com alguma dúvida?</p>
+      <Link
+        href="/help"
+        className="inline-flex min-h-10 items-center rounded-lg border-2 bg-background px-4 font-medium underline-offset-4 hover:underline"
+      >
+        Ver as perguntas frequentes
+      </Link>
     </section>
 
     <section className="flex items-start gap-3 rounded-xl border-2 p-4">

@@ -3,15 +3,18 @@
 import { ChoiceCards } from '@/components/ChoiceCards';
 import { ExportPanel } from '@/components/ExportPanel';
 import { FieldGroup } from '@/components/FormField';
+import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { DateRangesField } from '@/features/attendance/components/DateRangesField';
 import { LessonCountField } from '@/features/attendance/components/LessonCountField';
 import { LessonDatesPreview } from '@/features/attendance/components/LessonDatesPreview';
 import { WeekdaysField } from '@/features/attendance/components/WeekdaysField';
 import { COLUMN_MODE_CHOICES, MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
+import { LESSONS_HELP } from '@/features/attendance/help';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
 import { SheetStyleField } from '@/features/classroom/components/SheetStyleField';
+import { DOWNLOAD_HELP, SHEET_STYLE_HELP } from '@/features/classroom/help';
 import { workbookToBlob } from '@/lib/excel/workbookToBlob';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { getFieldError } from '@/lib/forms/formErrors';
@@ -52,6 +55,7 @@ export const AttendanceForm = () => {
         totalSteps={TOTAL_STEPS}
         title="Aulas"
         description="Escolha como as colunas das aulas vão aparecer na lista."
+        help={LESSONS_HELP}
       >
         <FieldGroup id="attendance-column-mode" legend="Como você quer as colunas?">
           <ChoiceCards
@@ -106,6 +110,8 @@ export const AttendanceForm = () => {
         totalSteps={TOTAL_STEPS}
         title="Aparência da planilha"
         description="Escolha a cor e o tamanho da letra. Se preferir, é só pular este passo."
+        status={<SaveStatus value={JSON.stringify(sheetStyle.preferences)} />}
+        help={SHEET_STYLE_HELP}
       >
         <SheetStyleField
           preferences={sheetStyle.preferences}
@@ -117,7 +123,7 @@ export const AttendanceForm = () => {
         />
       </StepCard>
 
-      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Baixar a lista">
+      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Baixar a lista" help={DOWNLOAD_HELP}>
         <ExportPanel
           summary={
             <div className="space-y-2">

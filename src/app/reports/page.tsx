@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { RestoreGate } from '@/components/RestoreGate';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { ToolPageHeader } from '@/components/layout/ToolPageHeader';
 import { TOOLS } from '@/config/tools';
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 const ReportsPage = () => (
   <PageContainer className="space-y-6">
     <ToolPageHeader tool={TOOLS.reports} />
-    <ReportsForm />
+    <RestoreGate>
+      <ReportsForm />
+    </RestoreGate>
   </PageContainer>
 );
 

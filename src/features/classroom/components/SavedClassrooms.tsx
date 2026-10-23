@@ -1,16 +1,7 @@
-import { Save, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Save, Trash2 } from 'lucide-react';
 
 import { UndoNotice } from '@/components/UndoNotice';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   putClassroom,
   removeClassroom,
@@ -24,6 +15,7 @@ import {
 } from '@/features/classroom/services/classForm';
 import type { Classroom, ClassFormValues } from '@/features/classroom/types';
 import { useUndoNotice } from '@/lib/react/useUndoNotice';
+import { pluralize } from '@/lib/text/pluralize';
 import { useAppDispatch, usePersistedSelector } from '@/store/hooks';
 
 const NO_CLASSROOMS: Classroom[] = [];
@@ -39,36 +31,27 @@ type SavedClassroomsProps = {
 export const SavedClassrooms = ({ values, studentNames, onChange }: SavedClassroomsProps) => {
   const dispatch = useAppDispatch();
   const classrooms = usePersistedSelector(selectClassrooms, NO_CLASSROOMS);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const notice = useUndoNotice();
 
   const trimmedName = values.classroomName.trim();
   const canSave = trimmedName.length > 0 && studentNames.length > 0;
   const existingClassroom = classrooms.find(({ name }) => isSameName(name, trimmedName));
-  const selectedClassroom = classrooms.find(({ id }) => id === selectedId);
-  const classroomItems = Object.fromEntries(classrooms.map(({ id, name }) => [id, name]));
+  // The classroom on screen: same name and the same students.
+  const isInUse = (classroom: Classroom) =>
+    isSameName(classroom.name, trimmedName) &&
+    studentNames.length > 0 &&
+    !wouldReplaceStudents(studentNames, classroom);
 
-  const handleSelect = (classroomId: string | null) => {
-    const classroom = classrooms.find(({ id }) => id === classroomId);
-
-    if (!classroom) {
-      return;
-    }
-
+  const handleUse = (classroom: Classroom) => {
     const previousValues = { ...values };
-    const previousSelectedId = selectedId;
     const replacedStudents = wouldReplaceStudents(studentNames, classroom);
 
-    setSelectedId(classroom.id);
     onChange(toClassFormValues(classroom));
     notice.show(
       replacedStudents
         ? `Turma "${classroom.name}" carregada. Os nomes que estavam escritos foram trocados pelos dessa turma.`
         : `Turma "${classroom.name}" carregada.`,
-      () => {
-        setSelectedId(previousSelectedId);
-        onChange(previousValues);
-      },
+      () => onChange(previousValues),
     );
   };
 
@@ -81,63 +64,70 @@ export const SavedClassrooms = ({ values, studentNames, onChange }: SavedClassro
     notice.show(
       previousVersion
         ? `Turma "${trimmedName}" atualizada com os nomes de agora.`
-        : `Turma "${trimmedName}" salva neste computador. Da próxima vez, é só escolher em "Usar uma turma salva".`,
+        : `Turma "${trimmedName}" salva neste computador. Da próxima vez, é só clicar em "Usar esta turma".`,
       previousVersion
         ? () => dispatch(putClassroom({ classroom: previousVersion, index: 0 }))
         : () => dispatch(removeClassroom(action.payload.id)),
     );
   };
 
-  const handleRemove = () => {
-    if (!selectedClassroom) {
-      return;
-    }
-
-    const classroom = selectedClassroom;
+  const handleRemove = (classroom: Classroom) => {
     const index = classrooms.indexOf(classroom);
 
     dispatch(removeClassroom(classroom.id));
-    setSelectedId(null);
     notice.show(
       `Turma salva "${classroom.name}" apagada. Os nomes escritos na tela continuam.`,
-      () => {
-        dispatch(putClassroom({ classroom, index }));
-        setSelectedId(classroom.id);
-      },
+      () => dispatch(putClassroom({ classroom, index })),
     );
   };
 
   return (
     <div className="space-y-3 rounded-xl bg-muted p-4">
       {classrooms.length > 0 && (
-        <div className="flex flex-wrap items-end gap-2">
-          <div className="space-y-2">
-            <Label htmlFor="saved-classroom" className="text-base">
-              Usar uma turma salva
-            </Label>
-            <Select items={classroomItems} value={selectedId} onValueChange={handleSelect}>
-              <SelectTrigger
-                id="saved-classroom"
-                className="min-w-56 bg-background text-base data-[size=default]:h-10"
+        <section aria-labelledby="saved-classrooms-title" className="space-y-2">
+          <h3 id="saved-classrooms-title" className="font-medium">
+            Usar uma turma salva
+          </h3>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {classrooms.map((classroom) => (
+              <li
+                key={classroom.id}
+                className="flex flex-wrap items-center gap-2 rounded-lg border bg-background p-3"
               >
-                <SelectValue placeholder="Escolha a turma" />
-              </SelectTrigger>
-              <SelectContent>
-                {classrooms.map(({ id, name }) => (
-                  <SelectItem key={id} value={id} className="text-base">
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {selectedClassroom && (
-            <Button variant="outline" size="lg" className="h-10" onClick={handleRemove}>
-              <Trash2 data-icon="inline-start" />
-              Apagar esta turma salva
-            </Button>
-          )}
-        </div>
+                <div className="min-w-40 flex-1">
+                  <p className="font-semibold">{classroom.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {[pluralize(classroom.students.length, 'aluno', 'alunos'), classroom.subject]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                </div>
+                {isInUse(classroom) ? (
+                  <span className="inline-flex items-center gap-1 px-2 font-medium">
+                    <Check className="size-4" aria-hidden />
+                    Em uso
+                  </span>
+                ) : (
+                  <Button
+                    variant="outline"
+                    aria-label={`Usar a turma ${classroom.name}`}
+                    onClick={() => handleUse(classroom)}
+                  >
+                    Usar esta turma
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  aria-label={`Apagar a turma salva ${classroom.name}`}
+                  onClick={() => handleRemove(classroom)}
+                >
+                  <Trash2 data-icon="inline-start" />
+                  Apagar
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <div className="space-y-1">

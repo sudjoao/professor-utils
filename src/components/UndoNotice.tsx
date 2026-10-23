@@ -27,7 +27,7 @@ export const UndoNotice = ({ notice, onUndo, onDismiss }: UndoNoticeProps) => {
   return (
     <div ref={noticeRef} role="status" tabIndex={-1} className="rounded-xl outline-none">
       {notice && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-green-700 bg-green-50 p-3 text-green-950">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-success-border bg-success p-3 text-success-foreground">
           <CircleCheck className="size-5 shrink-0" aria-hidden />
           <p className="min-w-48 flex-1">{notice.message}</p>
           {notice.undo && (

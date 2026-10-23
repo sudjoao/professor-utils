@@ -24,7 +24,13 @@ export const SheetPreview = ({ preferences, columnTitles, studentNames }: SheetP
   return (
     <div className="space-y-2">
       <h3 className="font-medium">Como a planilha vai ficar</h3>
-      <div className="overflow-x-auto rounded-lg border bg-white p-3 text-black">
+      {/* Focusable so keyboard users can scroll the preview sideways with the arrow keys. */}
+      <div
+        role="region"
+        aria-label="Prévia da planilha"
+        tabIndex={0}
+        className="overflow-x-auto rounded-lg border bg-white p-3 text-black"
+      >
         <table
           className={cn(
             'border-collapse',

@@ -21,11 +21,3 @@ export const stepTextSize = (current: TextSize, step: 1 | -1): TextSize => {
   const index = TEXT_SIZES.indexOf(current) + step;
   return TEXT_SIZES[Math.min(Math.max(index, 0), TEXT_SIZES.length - 1)];
 };
-
-/**
- * Runs inline in `<head>`, before the first paint, so a saved size never flashes the default one.
- * Kept tiny and dependency-free because it is serialized into the HTML.
- */
-export const TEXT_SIZE_SCRIPT = `(function(){try{var s=localStorage.getItem(${JSON.stringify(
-  TEXT_SIZE_STORAGE_KEY,
-)});if(${JSON.stringify(TEXT_SIZES)}.indexOf(s)>-1)document.documentElement.dataset.textSize=s}catch(e){}})()`;

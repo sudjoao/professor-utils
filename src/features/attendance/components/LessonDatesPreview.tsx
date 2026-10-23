@@ -124,7 +124,7 @@ export const LessonDatesPreview = ({
                   key={date}
                   className={cn(
                     'inline-flex min-h-10 cursor-pointer flex-col justify-center rounded-lg border px-2.5 py-1 text-sm tabular-nums outline-ring outline-offset-2 transition-colors hover:bg-muted has-checked:border-primary has-checked:bg-secondary has-focus-visible:outline-3 has-focus-visible:outline-solid [&:not(:has(:checked))]:text-muted-foreground',
-                    note && 'border-dashed border-amber-700',
+                    note && 'border-dashed border-note',
                   )}
                 >
                   <input
@@ -144,7 +144,7 @@ export const LessonDatesPreview = ({
                     {date.slice(8, 10)} {WEEKDAY_SHORT_LABELS[weekday]}
                   </span>
                   {note && (
-                    <span className="text-xs font-medium text-amber-900" aria-hidden>
+                    <span className="text-xs font-medium text-note-foreground" aria-hidden>
                       {NOTE_KIND_LABELS[note.kind]}
                     </span>
                   )}

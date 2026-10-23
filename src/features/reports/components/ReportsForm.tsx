@@ -1,13 +1,17 @@
 'use client';
 
 import { ExportPanel } from '@/components/ExportPanel';
+import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { DOWNLOAD_HELP } from '@/features/classroom/help';
 import { CommonTextField } from '@/features/reports/components/CommonTextField';
 import { HeaderImageField } from '@/features/reports/components/HeaderImageField';
 import { TermFields } from '@/features/reports/components/TermFields';
 import { type TextField, TextFieldsGrid } from '@/features/reports/components/TextFieldsGrid';
+import { EVALUATION_HELP, SCHOOL_HELP, SIGNATURES_HELP } from '@/features/reports/help';
 import { useReportForm } from '@/features/reports/hooks/useReportForm';
+import { REPORT_SETTINGS_KEYS } from '@/features/reports/reportSettingsSlice';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
@@ -63,6 +67,7 @@ export const ReportsForm = () => {
     },
   });
   const visibleErrors = fileExport.visibleErrors;
+  const savedSettings = JSON.stringify(REPORT_SETTINGS_KEYS.map((key) => values[key]));
 
   return (
     <div className="space-y-6">
@@ -81,6 +86,8 @@ export const ReportsForm = () => {
         totalSteps={TOTAL_STEPS}
         title="Escola e bimestre"
         description="Os dados da escola ficam salvos neste computador para os próximos bimestres."
+        status={<SaveStatus value={savedSettings} />}
+        help={SCHOOL_HELP}
       >
         <TextFieldsGrid
           fields={SCHOOL_FIELDS}
@@ -99,7 +106,13 @@ export const ReportsForm = () => {
         />
       </StepCard>
 
-      <StepCard step={3} totalSteps={TOTAL_STEPS} title="Local, data e assinaturas">
+      <StepCard
+        step={3}
+        totalSteps={TOTAL_STEPS}
+        title="Local, data e assinaturas"
+        status={<SaveStatus value={savedSettings} />}
+        help={SIGNATURES_HELP}
+      >
         <TextFieldsGrid
           fields={SIGNATURE_FIELDS}
           values={values}
@@ -112,7 +125,7 @@ export const ReportsForm = () => {
         />
       </StepCard>
 
-      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Texto da avaliação">
+      <StepCard step={4} totalSteps={TOTAL_STEPS} title="Texto da avaliação" help={EVALUATION_HELP}>
         <CommonTextField
           commonText={values.commonText}
           firstStudentName={studentNames[0]}
@@ -120,7 +133,7 @@ export const ReportsForm = () => {
         />
       </StepCard>
 
-      <StepCard step={5} totalSteps={TOTAL_STEPS} title="Baixar os relatórios">
+      <StepCard step={5} totalSteps={TOTAL_STEPS} title="Baixar os relatórios" help={DOWNLOAD_HELP}>
         <ExportPanel
           summary={
             <div className="space-y-2">

@@ -19,3 +19,9 @@ export const usePersistedSelector = <Selected>(
   const selected = useAppSelector(selector);
   return useIsHydrated() ? selected : initialValue;
 };
+
+/** `true` once the page hydrated and the data saved in the browser is back in the store. */
+export const useIsRestored = (): boolean => {
+  const isRehydrated = useAppSelector((state) => state._persist?.rehydrated ?? false);
+  return useIsHydrated() && isRehydrated;
+};

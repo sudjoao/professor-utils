@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { NavLinks } from '@/components/layout/NavLinks';
 import { TextSizeControl } from '@/components/layout/TextSizeControl';
+import { ThemeControl } from '@/components/layout/ThemeControl';
 
 export const AppHeader = () => (
   <header className="border-b">
@@ -9,7 +10,10 @@ export const AppHeader = () => (
       <Link href="/" className="rounded-md font-heading text-xl font-semibold">
         Professor Utils
       </Link>
-      <TextSizeControl />
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <TextSizeControl />
+        <ThemeControl />
+      </div>
       <NavLinks />
     </div>
   </header>

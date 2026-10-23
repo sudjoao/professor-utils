@@ -1,6 +1,7 @@
 import { CircleCheck, Download } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 
+import { MobileDownloadBar } from '@/components/MobileDownloadBar';
 import { Button } from '@/components/ui/button';
 import type { FileExport } from '@/lib/files/useFileExport';
 import { focusField } from '@/lib/forms/focusField';
@@ -18,6 +19,7 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
   const { visibleErrors, failedAttempts, isExporting, exportError, downloadedFileName } =
     fileExport;
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // A blocked download brings the teacher to the list of what is missing.
   useEffect(() => {
@@ -27,7 +29,7 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
   }, [failedAttempts]);
 
   return (
-    <div className="space-y-4">
+    <div ref={panelRef} className="space-y-4">
       {summary}
 
       {visibleErrors.length > 0 && (
@@ -78,7 +80,7 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
 
       <div role="status">
         {downloadedFileName && (
-          <div className="flex items-start gap-2 rounded-xl border-2 border-green-700 bg-green-50 p-4 text-green-950">
+          <div className="flex items-start gap-2 rounded-xl border-2 border-success-border bg-success p-4 text-success-foreground">
             <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
             <p>
               <strong>Pronto!</strong> O arquivo <strong>{downloadedFileName}</strong> foi baixado.
@@ -87,6 +89,13 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
           </div>
         )}
       </div>
+
+      <MobileDownloadBar
+        panelRef={panelRef}
+        label={downloadLabel}
+        isExporting={isExporting}
+        onDownload={fileExport.exportFile}
+      />
     </div>
   );
 };
