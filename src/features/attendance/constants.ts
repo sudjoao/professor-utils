@@ -21,4 +21,10 @@ export const COLUMN_MODE_CHOICES: { value: ColumnMode; label: string; descriptio
     label: 'Só numerar as aulas',
     description: 'Você diz quantas aulas são e escreve as datas à mão depois.',
   },
+  {
+    value: 'signature',
+    label: 'Folha para assinar',
+    description:
+      'Uma linha larga para cada aluno ou responsável assinar. Bom para reuniões e eventos.',
+  },
 ];

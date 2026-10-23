@@ -20,6 +20,8 @@ const buildValues = (overrides: Partial<AttendanceFormValues> = {}): AttendanceF
   skipNoClassDays: true,
   restoredDates: [],
   lessonCount: 10,
+  includeTotals: true,
+  signatureTitle: '',
   ...overrides,
 });
 
@@ -110,5 +112,13 @@ describe('validateAttendanceForm', () => {
     expect(errors).toEqual([
       `A quantidade de aulas precisa ser um número de 1 a ${MAX_LESSON_COLUMNS}.`,
     ]);
+  });
+
+  it('only needs students for a signature sheet', () => {
+    expect(
+      validateAttendanceForm(
+        buildValues({ columnMode: 'signature', dateRanges: [], weekdays: [] }),
+      ),
+    ).toEqual([]);
   });
 });

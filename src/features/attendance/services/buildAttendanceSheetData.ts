@@ -11,17 +11,26 @@ import type {
 import { getClassInfo, getStudentNames } from '@/features/classroom/services/classForm';
 import type { SheetStyle } from '@/features/classroom/types';
 
-export const getAttendanceColumns = (values: AttendanceFormValues): AttendanceColumn[] =>
-  values.columnMode === 'dates'
-    ? toDateColumns(selectLessonDates(values))
-    : toNumberedColumns(values.lessonCount);
+export const getAttendanceColumns = (values: AttendanceFormValues): AttendanceColumn[] => {
+  switch (values.columnMode) {
+    case 'dates':
+      return toDateColumns(selectLessonDates(values));
+    case 'count':
+      return toNumberedColumns(values.lessonCount);
+    case 'signature':
+      return [];
+  }
+};
 
 export const buildAttendanceSheetData = (
   values: AttendanceFormValues,
   style: SheetStyle,
 ): AttendanceSheetData => ({
+  mode: values.columnMode,
   classInfo: getClassInfo(values),
   studentNames: getStudentNames(values),
   columns: getAttendanceColumns(values),
+  includeTotals: values.includeTotals,
+  signatureTitle: values.signatureTitle.trim(),
   style,
 });

@@ -33,6 +33,8 @@ type StudentRows = {
   firstRow: number;
   lastColumn: number;
   style: SheetStyle;
+  /** Taller rows leave room to sign; defaults to the regular height. */
+  rowHeight?: number;
 };
 
 type PrintSettings = {
@@ -96,11 +98,11 @@ export const addStudentHeaders = (
 
 export const addStudentRows = (
   worksheet: Worksheet,
-  { studentNames, firstRow, lastColumn, style }: StudentRows,
+  { studentNames, firstRow, lastColumn, style, rowHeight = STUDENT_ROW_HEIGHT }: StudentRows,
 ) => {
   studentNames.forEach((name, index) => {
     const row = worksheet.getRow(firstRow + index);
-    row.height = scaleSize(STUDENT_ROW_HEIGHT, style);
+    row.height = scaleSize(rowHeight, style);
     row.getCell(NUMBER_COLUMN).value = index + 1;
     row.getCell(NAME_COLUMN).value = name;
 
@@ -118,6 +120,19 @@ export const addStudentRows = (
       }
     }
   });
+};
+
+/** A line of small text across the sheet, like a legend below the students. */
+export const addSheetNote = (
+  worksheet: Worksheet,
+  { row, lastColumn, text }: { row: number; lastColumn: number; text: string },
+) => {
+  worksheet.mergeCells(row, NUMBER_COLUMN, row, lastColumn);
+  const cell = worksheet.getCell(row, NUMBER_COLUMN);
+  cell.value = text;
+  cell.font = { italic: true, size: 9 };
+  cell.alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+  worksheet.getRow(row).height = 30;
 };
 
 export const configureA4Printing = (

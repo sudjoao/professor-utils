@@ -11,11 +11,16 @@ import type { SheetStyle } from '@/features/classroom/types';
 const buildSheetData = (
   columnsCount: number,
   style: SheetStyle = buildSheetStyle(),
+  overrides: Partial<AttendanceSheetData> = {},
 ): AttendanceSheetData => ({
+  mode: 'count',
   classInfo: { classroomName: '7º A', subject: 'Matemática', teacherName: 'Joana' },
   studentNames: ['Ana Souza', 'Bruno Lima', 'Carla Dias'],
   columns: toNumberedColumns(columnsCount),
+  includeTotals: false,
+  signatureTitle: '',
   style,
+  ...overrides,
 });
 
 const fillColor = (cell: ExcelJS.Cell) =>
@@ -92,8 +97,52 @@ describe('buildAttendanceWorkbook', () => {
     expect(worksheet.getRow(5).height).toBe(21.6);
   });
 
+  it('adds absences and attendance columns on the last page, counting every page', () => {
+    const workbook = buildAttendanceWorkbook(
+      buildSheetData(MAX_COLUMNS_PER_PAGE + 5, buildSheetStyle(), { includeTotals: true }),
+    );
+    const [firstPage, lastPage] = workbook.worksheets;
+
+    expect(firstPage.columnCount).toBe(2 + MAX_COLUMNS_PER_PAGE);
+    expect(lastPage.columnCount).toBe(2 + 5 + 2);
+    expect(lastPage.getCell('H3').value).toBe('Faltas');
+    expect(lastPage.getCell('I3').value).toBe('Freq.');
+
+    const absences = lastPage.getCell('H5').value as { formula: string };
+    expect(absences.formula).toContain(`'Página 1'!C5:AA5`);
+    expect(absences.formula).toContain(`'Página 2'!C5:G5`);
+    expect((lastPage.getCell('I5').value as { formula: string }).formula).toContain('1-H5/');
+    expect(lastPage.getCell('I5').numFmt).toBe('0%');
+  });
+
+  it('writes the legend below the students', () => {
+    const [worksheet] = buildAttendanceWorkbook(buildSheetData(3)).worksheets;
+
+    expect(String(worksheet.getCell('A9').value)).toContain('F = falta');
+  });
+
+  it('builds a signature sheet with one wide column', () => {
+    const workbook = buildAttendanceWorkbook(
+      buildSheetData(0, buildSheetStyle(), {
+        mode: 'signature',
+        columns: [],
+        signatureTitle: 'Reunião de pais',
+      }),
+    );
+    const [worksheet] = workbook.worksheets;
+
+    expect(worksheet.name).toBe('Assinaturas');
+    expect(worksheet.getCell('A1').value).toBe('Reunião de pais');
+    expect(worksheet.getCell('C3').value).toBe('Assinatura');
+    expect(worksheet.getCell('B4').value).toBe('Ana Souza');
+    expect(worksheet.getRow(4).height).toBe(30);
+    expect(worksheet.pageSetup.orientation).toBe('portrait');
+  });
+
   it('generates a valid xlsx file', async () => {
-    const buffer = await buildAttendanceWorkbook(buildSheetData(30)).xlsx.writeBuffer();
+    const buffer = await buildAttendanceWorkbook(
+      buildSheetData(30, buildSheetStyle(), { includeTotals: true }),
+    ).xlsx.writeBuffer();
     const reloaded = new ExcelJS.Workbook();
     await reloaded.xlsx.load(buffer);
 

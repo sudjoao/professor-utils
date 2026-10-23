@@ -36,6 +36,8 @@ const INITIAL_VALUES: LessonValues = {
   skipNoClassDays: true,
   restoredDates: [],
   lessonCount: DEFAULT_LESSON_COUNT,
+  includeTotals: true,
+  signatureTitle: '',
 };
 
 // An untouched range covers the current term (or today, when the year's calendar is unknown).
@@ -109,7 +111,10 @@ export const useAttendanceForm = () => {
     [values, sheetStyle.style],
   );
   const errors = useMemo(() => validateAttendanceForm(values), [values]);
-  const pageCount = Math.ceil(sheetData.columns.length / MAX_COLUMNS_PER_PAGE);
+  const pageCount =
+    values.columnMode === 'signature'
+      ? 1
+      : Math.max(Math.ceil(sheetData.columns.length / MAX_COLUMNS_PER_PAGE), 1);
 
   return {
     values,

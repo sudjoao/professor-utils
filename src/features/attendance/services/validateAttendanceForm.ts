@@ -68,6 +68,10 @@ const validateColumnsCount = (values: AttendanceFormValues): FormError[] => {
 
 /** Returns the messages to show the teacher; an empty list means the sheet can be generated. */
 export const validateAttendanceForm = (values: AttendanceFormValues): FormError[] => {
+  if (values.columnMode === 'signature') {
+    return validateStudents(values);
+  }
+
   const columnErrors =
     values.columnMode === 'dates' ? validateDateRanges(values) : validateLessonCount(values);
 
