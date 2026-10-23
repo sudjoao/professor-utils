@@ -66,7 +66,10 @@ export const AttendanceForm = () => {
             <div className="space-y-8">
               <DateRangesField
                 dateRanges={values.dateRanges}
+                schoolTerms={form.schoolTerms}
+                currentTerm={form.currentTerm}
                 error={getFieldError(errors, 'dateRanges')}
+                onApplyTerm={form.applyTerm}
                 onAdd={form.addDateRange}
                 onUpdate={form.updateDateRange}
                 onRemove={form.removeDateRange}
@@ -80,9 +83,13 @@ export const AttendanceForm = () => {
             </div>
             <LessonDatesPreview
               candidateDates={form.candidateDates}
+              calendarNotes={form.calendarNotes}
               excludedDates={values.excludedDates}
-              onToggleDate={form.toggleExcludedDate}
-              onIncludeAll={() => form.updateValues({ excludedDates: [] })}
+              restoredDates={values.restoredDates}
+              skipNoClassDays={values.skipNoClassDays}
+              onToggleDate={form.toggleDate}
+              onReset={form.resetDates}
+              onSkipNoClassDaysChange={(skipNoClassDays) => form.updateValues({ skipNoClassDays })}
             />
           </div>
         ) : (

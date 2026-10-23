@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  addDays,
   daysBetween,
   eachDayOfRange,
   formatDayMonth,
@@ -65,5 +66,12 @@ describe('date helpers', () => {
       ['2026-03', ['2026-03-30', '2026-03-31']],
       ['2026-04', ['2026-04-01']],
     ]);
+  });
+});
+
+describe('addDays', () => {
+  it('moves forward and backward across months and years', () => {
+    expect(addDays('2026-02-27', 2)).toBe('2026-03-01');
+    expect(addDays('2026-01-01', -1)).toBe('2025-12-31');
   });
 });

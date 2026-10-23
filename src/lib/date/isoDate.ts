@@ -48,6 +48,9 @@ export const eachDayOfRange = (start: IsoDate, end: IsoDate): IsoDate[] => {
   );
 };
 
+export const addDays = (isoDate: IsoDate, days: number): IsoDate =>
+  toIsoDate(new Date(toUtcDate(isoDate).getTime() + days * MS_PER_DAY));
+
 export const getWeekday = (isoDate: IsoDate): Weekday => toUtcDate(isoDate).getUTCDay() as Weekday;
 
 export const formatDayMonth = (isoDate: IsoDate): string =>

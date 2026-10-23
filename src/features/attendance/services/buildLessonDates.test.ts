@@ -3,9 +3,13 @@ import { describe, expect, it } from 'vitest';
 import {
   buildLessonDates,
   fillEmptyDates,
+  fillRangeDefaults,
   isValidRange,
   selectLessonDates,
+  toggleLessonDate,
 } from '@/features/attendance/services/buildLessonDates';
+import { getCalendarNotes } from '@/features/schoolCalendar/services/schoolCalendar';
+import type { SchoolTerm } from '@/features/schoolCalendar/types';
 import { ALL_WEEKDAYS, BUSINESS_DAYS } from '@/lib/date/weekdays';
 
 // 2026-03-02 is a Monday.
@@ -53,15 +57,92 @@ describe('buildLessonDates', () => {
   });
 });
 
+const selection = { excludedDates: [], skipNoClassDays: true, restoredDates: [] };
+
+// 2026-10-12 (Monday) is a holiday; 2026-10-16 (Friday) is a movable school day.
+const octoberWeek = { dateRanges: [range('2026-10-12', '2026-10-16')], weekdays: BUSINESS_DAYS };
+
 describe('selectLessonDates', () => {
-  it('removes the excluded dates, like holidays', () => {
+  it('removes the dates the teacher took out', () => {
     const dates = selectLessonDates({
       dateRanges: [range('2026-03-02', '2026-03-04')],
       weekdays: ALL_WEEKDAYS,
+      ...selection,
       excludedDates: ['2026-03-03'],
     });
 
     expect(dates).toEqual(['2026-03-02', '2026-03-04']);
+  });
+
+  it('removes holidays and recesses, but keeps movable school days', () => {
+    expect(selectLessonDates({ ...octoberWeek, ...selection })).toEqual([
+      '2026-10-13',
+      '2026-10-14',
+      '2026-10-16',
+    ]);
+  });
+
+  it('keeps a holiday the teacher put back', () => {
+    const dates = selectLessonDates({
+      ...octoberWeek,
+      ...selection,
+      restoredDates: ['2026-10-12'],
+    });
+
+    expect(dates).toContain('2026-10-12');
+  });
+
+  it('keeps every date when the calendar is turned off', () => {
+    expect(
+      selectLessonDates({ ...octoberWeek, ...selection, skipNoClassDays: false }),
+    ).toHaveLength(5);
+  });
+});
+
+describe('toggleLessonDate', () => {
+  const notes = getCalendarNotes(['2026-10-12']);
+
+  it('puts back a holiday taken out by the calendar', () => {
+    expect(toggleLessonDate('2026-10-12', selection, notes)).toEqual({
+      restoredDates: ['2026-10-12'],
+    });
+  });
+
+  it('takes out a regular date by hand', () => {
+    expect(toggleLessonDate('2026-10-13', selection, notes)).toEqual({
+      excludedDates: ['2026-10-13'],
+    });
+  });
+
+  it('treats holidays as regular dates when the calendar is turned off', () => {
+    expect(toggleLessonDate('2026-10-12', { ...selection, skipNoClassDays: false }, notes)).toEqual(
+      { excludedDates: ['2026-10-12'] },
+    );
+  });
+});
+
+describe('fillRangeDefaults', () => {
+  const term: SchoolTerm = { term: 4, start: '2026-10-06', end: '2026-12-21', schoolDays: 50 };
+
+  it('fills an untouched range with the term', () => {
+    expect(fillRangeDefaults(range('', ''), '2026-10-23', term)).toMatchObject({
+      start: '2026-10-06',
+      end: '2026-12-21',
+    });
+  });
+
+  it('keeps the dates the teacher chose', () => {
+    expect(fillRangeDefaults(range('2026-11-02', ''), '2026-10-23', term)).toMatchObject({
+      start: '2026-11-02',
+      end: '2026-11-02',
+    });
+  });
+
+  it('falls back to today without a term', () => {
+    expect(fillRangeDefaults(range('', ''), '2026-10-23')).toMatchObject({
+      start: '2026-10-23',
+      end: '2026-10-23',
+    });
   });
 });
 

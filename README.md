@@ -4,7 +4,7 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 ## Funcionalidades planejadas
 
-- [x] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada por datas (um ou vários períodos, escolhendo os dias da semana e removendo feriados) ou por quantidade de aulas. A lista cabe na largura de uma folha A4 deitada; o que passar disso vai para novas páginas
+- [x] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada por datas (um ou vários períodos, escolhendo os dias da semana e removendo feriados) ou por quantidade de aulas. Com o calendário da SEEDF, o período já começa no bimestre atual e feriados e recessos saem sozinhos (podem ser colocados de volta). A lista cabe na largura de uma folha A4 deitada; o que passar disso vai para novas páginas
 - [x] **Lista de notas**: planilha para lançar as notas, com colunas por quantidade ("Nota 1", "Nota 2"...) ou pelo título de cada avaliação, coluna final de média ou soma calculada pelo Excel e validação de 0 até a nota máxima
 - [x] **Relatórios (RAv – Registro de Avaliação)**: gera em Word (`.docx`) o Formulário 1 da SEEDF para a turma inteira, um aluno por página, com cabeçalho (brasão), dados da escola, turma, turno, bimestre, dias letivos, local/data e matrículas já preenchidos. O professor só escreve a avaliação e o total de faltas; opcionalmente, um texto comum com `[ALUNO]` é repetido para cada aluno com o nome dele. Os dados da escola ficam salvos no navegador
 - [x] **Aparência das planilhas**: paletas de cores prontas (cabeçalho e linhas alternadas), opção sem linhas alternadas e letra grande, com prévia; a escolha vale para chamada e notas e fica salva
@@ -61,6 +61,8 @@ src/
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts
+    schoolCalendar/     # calendário da SEEDF (bimestres, recessos, dias móveis) e feriados
+                        #   calculados para qualquer ano; um ano novo entra em constants.ts
       components/       #   componentes React da feature
       services/         #   lógica pura (ex.: montar a planilha), sem React, fácil de testar
   components/

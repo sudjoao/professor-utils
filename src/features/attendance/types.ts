@@ -14,7 +14,12 @@ export type AttendanceFormValues = ClassFormValues & {
   columnMode: ColumnMode;
   dateRanges: DateRange[];
   weekdays: Weekday[];
+  /** Dates the teacher took out by hand. */
   excludedDates: IsoDate[];
+  /** Takes holidays and recesses of the school calendar out automatically. */
+  skipNoClassDays: boolean;
+  /** Holidays or recesses the teacher put back (the school has classes on them). */
+  restoredDates: IsoDate[];
   lessonCount: number;
 };
 

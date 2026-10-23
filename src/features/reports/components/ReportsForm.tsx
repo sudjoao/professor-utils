@@ -50,7 +50,8 @@ const SIGNATURE_FIELDS: TextField[] = [
 ];
 
 export const ReportsForm = () => {
-  const { values, updateValues, studentNames, errors } = useReportForm();
+  const { values, updateValues, studentNames, errors, currentTerm, isSchoolDaysFromCalendar } =
+    useReportForm();
 
   const fileExport = useFileExport({
     errors,
@@ -91,6 +92,8 @@ export const ReportsForm = () => {
           term={values.term}
           shift={values.shift}
           schoolDays={values.schoolDays}
+          currentTerm={currentTerm}
+          isSchoolDaysFromCalendar={isSchoolDaysFromCalendar}
           errors={visibleErrors}
           onChange={updateValues}
         />

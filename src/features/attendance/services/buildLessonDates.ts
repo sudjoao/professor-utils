@@ -1,5 +1,7 @@
 import { MAX_RANGE_DAYS } from '@/features/attendance/constants';
 import type { AttendanceFormValues, DateRange } from '@/features/attendance/types';
+import { getCalendarNotes, isNoClassDay } from '@/features/schoolCalendar/services/schoolCalendar';
+import type { CalendarNote, SchoolTerm } from '@/features/schoolCalendar/types';
 import {
   daysBetween,
   eachDayOfRange,
@@ -9,6 +11,13 @@ import {
 } from '@/lib/date/isoDate';
 
 type LessonDatesOptions = Pick<AttendanceFormValues, 'dateRanges' | 'weekdays'>;
+
+type DateSelection = Pick<
+  AttendanceFormValues,
+  'excludedDates' | 'skipNoClassDays' | 'restoredDates'
+>;
+
+type CalendarNotes = Map<IsoDate, CalendarNote>;
 
 const earliest = (first: IsoDate, second: IsoDate): IsoDate => (first < second ? first : second);
 const latest = (first: IsoDate, second: IsoDate): IsoDate => (first > second ? first : second);
@@ -23,6 +32,16 @@ export const fillEmptyDates = (range: DateRange, today: IsoDate): DateRange => {
 
   return { ...range, start, end };
 };
+
+/** An untouched range (both dates blank) covers the given term, when there is one. */
+export const fillRangeDefaults = (
+  range: DateRange,
+  today: IsoDate,
+  defaultTerm?: SchoolTerm,
+): DateRange =>
+  !range.start && !range.end && defaultTerm
+    ? { ...range, start: defaultTerm.start, end: defaultTerm.end }
+    : fillEmptyDates(range, today);
 
 export const isCompleteRange = ({ start, end }: DateRange): boolean =>
   isIsoDate(start) && isIsoDate(end);
@@ -53,9 +72,38 @@ export const buildLessonDates = ({ dateRanges, weekdays }: LessonDatesOptions): 
   return [...new Set(dates)].sort();
 };
 
-export const selectLessonDates = (
-  options: LessonDatesOptions & Pick<AttendanceFormValues, 'excludedDates'>,
-): IsoDate[] => {
-  const excludedDates = new Set(options.excludedDates);
-  return buildLessonDates(options).filter((date) => !excludedDates.has(date));
+/** Removed by the calendar: a holiday or recess the teacher did not put back. */
+export const isRemovedByCalendar = (
+  date: IsoDate,
+  { skipNoClassDays, restoredDates }: DateSelection,
+  notes: CalendarNotes,
+): boolean => skipNoClassDays && isNoClassDay(notes.get(date)) && !restoredDates.includes(date);
+
+export const isSelectedDate = (
+  date: IsoDate,
+  selection: DateSelection,
+  notes: CalendarNotes,
+): boolean =>
+  !selection.excludedDates.includes(date) && !isRemovedByCalendar(date, selection, notes);
+
+export const selectLessonDates = (options: LessonDatesOptions & DateSelection): IsoDate[] => {
+  const dates = buildLessonDates(options);
+  const notes = getCalendarNotes(dates);
+  return dates.filter((date) => isSelectedDate(date, options, notes));
 };
+
+const toggleItem = <T>(items: T[], item: T): T[] =>
+  items.includes(item) ? items.filter((current) => current !== item) : [...items, item];
+
+/**
+ * Clicking a date: a holiday or recess taken out by the calendar is put back (or out again);
+ * any other date is taken out (or put back) by hand.
+ */
+export const toggleLessonDate = (
+  date: IsoDate,
+  selection: DateSelection,
+  notes: CalendarNotes,
+): Partial<DateSelection> =>
+  selection.skipNoClassDays && isNoClassDay(notes.get(date))
+    ? { restoredDates: toggleItem(selection.restoredDates, date) }
+    : { excludedDates: toggleItem(selection.excludedDates, date) };

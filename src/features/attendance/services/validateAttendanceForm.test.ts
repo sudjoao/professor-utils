@@ -17,6 +17,8 @@ const buildValues = (overrides: Partial<AttendanceFormValues> = {}): AttendanceF
   dateRanges: [{ id: '1', start: '2026-03-02', end: '2026-03-08' }],
   weekdays: BUSINESS_DAYS,
   excludedDates: [],
+  skipNoClassDays: true,
+  restoredDates: [],
   lessonCount: 10,
   ...overrides,
 });
