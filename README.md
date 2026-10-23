@@ -2,6 +2,8 @@
 
 Ferramentas simples para facilitar o dia a dia do professor: gerar listas de chamada, listas de notas e modelos de relatórios sobre os alunos.
 
+O que mudou em cada versão está no [CHANGELOG.md](CHANGELOG.md).
+
 ## Funcionalidades planejadas
 
 - [x] **Lista de chamada em Excel**: a partir de uma lista de nomes, gera a planilha de chamada por datas (um ou vários períodos, escolhendo os dias da semana e removendo feriados) ou por quantidade de aulas. Com o calendário da SEEDF, o período já começa no bimestre atual e feriados e recessos saem sozinhos (podem ser colocados de volta). A lista cabe na largura de uma folha A4 deitada; o que passar disso vai para novas páginas. No final, as colunas "Faltas" e "Freq." são calculadas pelo Excel com as marcas P/F/J de todas as páginas (abaixo de 75% fica em vermelho). Também gera uma folha para assinar (reuniões e eventos)
