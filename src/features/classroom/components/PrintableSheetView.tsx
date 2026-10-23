@@ -1,4 +1,4 @@
-import type { PrintableSheet } from '@/features/classroom/services/printableSheet';
+import { getColumnWidths, type PrintableSheet } from '@/features/classroom/services/printableSheet';
 import { argbToCss, getSheetPalette } from '@/features/classroom/services/sheetStyle';
 import type { SheetStylePreferences } from '@/features/classroom/types';
 import { cn } from '@/lib/utils';
@@ -17,8 +17,13 @@ export const PrintableSheetView = ({ sheet, preferences }: PrintableSheetViewPro
   const stripeStyle = { backgroundColor: argbToCss(palette.stripeArgb) };
   const isLarge = preferences.fontSize === 'large';
   const rowHeight = sheet.tallRows ? 'h-10' : isLarge ? 'h-7' : 'h-6';
-  // Many lesson columns: the name column gives them room, as in the spreadsheet.
-  const hasManyColumns = sheet.pages.some(({ columns }) => columns.length > 10);
+  // Many (or wide) columns: the name column gives them room, as in the spreadsheet.
+  const hasManyColumns = sheet.pages.some(
+    ({ columns }) =>
+      columns.length > 10 || columns.reduce((total, { weight = 1 }) => total + weight, 0) > 8,
+  );
+  // Nº takes about 4% and the name 18% or 30%; the data columns share the rest.
+  const nameWidth = hasManyColumns ? 18 : 30;
 
   return (
     <div className={cn('text-black', isLarge ? 'text-[12pt]' : 'text-[10pt]')}>
@@ -28,13 +33,14 @@ export const PrintableSheetView = ({ sheet, preferences }: PrintableSheetViewPro
         return (
           <section key={pageIndex} className="print-page">
             <h1 className="text-center text-[14pt] font-bold">{page.title}</h1>
-            <p className="mb-2">{page.info}</p>
+            {/* Keeps the spaces between "Turma: 7º A" and the next item, as in the spreadsheet. */}
+            <p className="mb-2 whitespace-pre-wrap">{page.info}</p>
             <table className="w-full table-fixed border-collapse">
               <colgroup>
-                <col className="w-8" />
-                <col className={hasManyColumns ? 'w-[18%]' : 'w-[30%]'} />
-                {page.columns.map((column, index) => (
-                  <col key={index} className={column.wide ? 'w-[60%]' : undefined} />
+                <col style={{ width: '4%' }} />
+                <col style={{ width: `${nameWidth}%` }} />
+                {getColumnWidths(page.columns, 96 - nameWidth).map((width, index) => (
+                  <col key={index} style={{ width: `${width}%` }} />
                 ))}
               </colgroup>
               <thead>

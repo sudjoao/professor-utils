@@ -23,6 +23,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Bilhete aos responsáveis**: um texto com `[ALUNO]` vira um bilhete por aluno (escola, local, data e assinatura já preenchidos), com parte "Ciente" para recortar e devolver, de 1 a 4 por folha
 
+- [x] **Ficha de conselho de classe**: colunas prontas (faltas, nota, aprendizagens, dificuldades, encaminhamentos...) e próprias, bimestre sugerido pelo calendário, em Excel ou impressa
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -87,6 +89,7 @@ src/
     draw/               # sorteio de aluno e formação de grupos
     seating/            # mapa de sala (salvo por turma)
     parentNotes/        # bilhete aos responsáveis
+    council/            # ficha de conselho de classe
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts

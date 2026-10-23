@@ -1,5 +1,6 @@
 import {
   ClipboardCheck,
+  ClipboardList,
   Dices,
   FileText,
   GraduationCap,
@@ -87,6 +88,15 @@ export const TOOLS = {
       'Escreva um bilhete uma vez e imprima um para cada aluno, já com o nome, com parte "Ciente" para devolver.',
     result: 'os bilhetes prontos para imprimir, de 1 a 4 por folha.',
     icon: Mail,
+  },
+  council: {
+    href: '/class-council',
+    group: 'other',
+    title: 'Ficha de conselho de classe',
+    description:
+      'Uma ficha da turma para a reunião do conselho, com as colunas que você escolher, em Excel ou para imprimir.',
+    result: 'a ficha da turma em Excel ou impressa, com espaço para escrever sobre cada aluno.',
+    icon: ClipboardList,
   },
 } satisfies Record<string, Tool>;
 

@@ -20,7 +20,7 @@ export const buildAttendancePrint = (data: AttendanceSheetData): PrintableSheet 
         {
           title: data.signatureTitle || 'Lista de assinaturas',
           info,
-          columns: [{ label: 'Assinatura', wide: true }],
+          columns: [{ label: 'Assinatura', weight: 3 }],
         },
       ],
     };

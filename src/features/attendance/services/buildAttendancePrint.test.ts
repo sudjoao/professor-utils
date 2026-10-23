@@ -42,7 +42,7 @@ describe('buildAttendancePrint', () => {
     expect(sheet).toMatchObject({ orientation: 'portrait', tallRows: true });
     expect(sheet.pages[0]).toMatchObject({
       title: 'Reunião',
-      columns: [{ label: 'Assinatura', wide: true }],
+      columns: [{ label: 'Assinatura', weight: 3 }],
     });
   });
 });
