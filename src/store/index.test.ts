@@ -19,6 +19,7 @@ describe('store', () => {
       reportSettings: { ...INITIAL_REPORT_SETTINGS, schoolName: 'EC 18' },
       studentEvaluations: { evaluations: {}, commonTexts: { '7º a|2': 'Comum.' } },
       phraseBank: { customPhrases: [] },
+      seating: { charts: {} },
     };
     store.dispatch(stateRestored(restored));
 

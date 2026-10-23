@@ -5,6 +5,8 @@ import type { Classroom } from '@/features/classroom/types';
 import type { CustomPhrase } from '@/features/reports/phraseBankSlice';
 import type { StudentEvaluationsState } from '@/features/reports/studentEvaluationsSlice';
 import type { StudentEvaluation } from '@/features/reports/types';
+import { MAX_COLUMNS, MAX_ROWS } from '@/features/seating/services/seatingChart';
+import type { SeatingChart } from '@/features/seating/types';
 import { INITIAL_REPORT_SETTINGS } from '@/features/reports/reportSettingsSlice';
 import { daysBetween, type IsoDate } from '@/lib/date/isoDate';
 import { mergeKnownFields } from '@/lib/object/mergeKnownFields';
@@ -62,6 +64,17 @@ const toCustomPhrases = (value: unknown): CustomPhrase[] =>
       isRecord(phrase) && isString(phrase.id) && isString(phrase.text),
   );
 
+const isSize = (value: unknown, max: number): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= max;
+
+const isSeatingChart = (value: unknown): value is SeatingChart =>
+  isRecord(value) &&
+  isSize(value.rows, MAX_ROWS) &&
+  isSize(value.columns, MAX_COLUMNS) &&
+  Array.isArray(value.seats) &&
+  value.seats.length === value.rows * value.columns &&
+  value.seats.every((seat) => seat === null || isString(seat));
+
 const toHeaderImage = (value: unknown): string | null =>
   isString(value) && value.startsWith('data:image/') ? value : null;
 
@@ -78,6 +91,7 @@ export const normalizeBackupData = (data: unknown): BackupData => {
     reportSettings: mergeKnownFields(INITIAL_REPORT_SETTINGS, source.reportSettings),
     studentEvaluations: toStudentEvaluations(source.studentEvaluations),
     customPhrases: toCustomPhrases(source.customPhrases),
+    seatingCharts: filterRecord(source.seatingCharts, isSeatingChart),
     headerImage: toHeaderImage(source.headerImage),
   };
 };

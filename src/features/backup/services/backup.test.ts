@@ -33,6 +33,7 @@ const data: BackupData = {
     commonTexts: { '7º a|2': 'Comum.' },
   },
   customPhrases: [{ id: 'p1', text: '[ALUNO] participou.' }],
+  seatingCharts: { '7º a': { rows: 1, columns: 2, seats: ['Ana', null] } },
   headerImage: 'data:image/png;base64,AAAA',
 };
 
@@ -71,6 +72,10 @@ describe('serializeBackup / parseBackup', () => {
           commonTexts: { ok: 'B', broken: 4 },
         },
         customPhrases: [{ id: 'p', text: 'C' }, { text: 'no id' }],
+        seatingCharts: {
+          ok: { rows: 1, columns: 2, seats: ['Ana', null] },
+          wrongSize: { rows: 1, columns: 2, seats: ['Ana'] },
+        },
         headerImage: 'https://example.com/image.png',
       },
     });
@@ -88,6 +93,7 @@ describe('serializeBackup / parseBackup', () => {
         commonTexts: { ok: 'B' },
       },
       customPhrases: [{ id: 'p', text: 'C' }],
+      seatingCharts: { ok: { rows: 1, columns: 2, seats: ['Ana', null] } },
       headerImage: null,
     });
   });

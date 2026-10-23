@@ -19,6 +19,7 @@ import { headerImageStorage } from '@/features/reports/headerImageStorage';
 import { phraseBankReducer } from '@/features/reports/phraseBankSlice';
 import { reportSettingsReducer } from '@/features/reports/reportSettingsSlice';
 import { studentEvaluationsReducer } from '@/features/reports/studentEvaluationsSlice';
+import { seatingReducer } from '@/features/seating/seatingSlice';
 import { stateRestored } from '@/store/actions';
 import { moveHeaderImageOut } from '@/store/migrations';
 import { storage } from '@/store/storage';
@@ -30,6 +31,7 @@ const combinedReducer = combineReducers({
   reportSettings: reportSettingsReducer,
   studentEvaluations: studentEvaluationsReducer,
   phraseBank: phraseBankReducer,
+  seating: seatingReducer,
   backup: backupReducer,
 });
 
@@ -64,6 +66,7 @@ const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
       'reportSettings',
       'studentEvaluations',
       'phraseBank',
+      'seating',
       'backup',
     ],
     // Merges each slice with its initial state, so fields added later get their defaults.

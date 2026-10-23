@@ -19,6 +19,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Sorteio e grupos**: marca quem faltou, sorteia um aluno (sem repetir até todos saírem) e forma grupos equilibrados por quantidade ou tamanho, para copiar ou imprimir
 
+- [x] **Mapa de sala**: fileiras e carteiras, alunos em ordem alfabética ou sorteados, troca de lugares com dois cliques (sem arrastar), salvo por turma e pronto para imprimir
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -81,6 +83,7 @@ src/
     backup/             # cópia de segurança dos dados do navegador (salvar e carregar .json)
     labels/             # etiquetas com nomes (folhas A4 de etiquetas, medidas em mm)
     draw/               # sorteio de aluno e formação de grupos
+    seating/            # mapa de sala (salvo por turma)
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts

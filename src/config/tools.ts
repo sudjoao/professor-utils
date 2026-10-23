@@ -3,6 +3,7 @@ import {
   Dices,
   FileText,
   GraduationCap,
+  LayoutGrid,
   type LucideIcon,
   Tags,
 } from 'lucide-react';
@@ -67,6 +68,15 @@ export const TOOLS = {
       'Sorteie um aluno sem repetir ou forme grupos equilibrados só com quem está na sala.',
     result: 'o nome sorteado em letras grandes e os grupos prontos para copiar ou imprimir.',
     icon: Dices,
+  },
+  seating: {
+    href: '/seating',
+    group: 'other',
+    title: 'Mapa de sala',
+    description:
+      'Monte o mapa de onde cada aluno senta, troque lugares com dois cliques e imprima.',
+    result: 'o mapa da sala salvo para a turma e pronto para imprimir.',
+    icon: LayoutGrid,
   },
 } satisfies Record<string, Tool>;
 
