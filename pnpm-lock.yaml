@@ -184,6 +184,9 @@ importers:
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
+      jszip:
+        specifier: ^3.10.2
+        version: 3.10.2
       lucide-react:
         specifier: ^1.59.0
         version: 1.59.0(@types/react@19.3.0)(react@19.3.0)
@@ -230,9 +233,6 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
-      jszip:
-        specifier: ^3.10.2
-        version: 3.10.2
       prettier:
         specifier: ^3.9.10
         version: 3.9.10

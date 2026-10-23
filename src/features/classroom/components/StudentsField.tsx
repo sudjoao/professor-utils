@@ -81,6 +81,8 @@ export const StudentsField = ({
             <Textarea
               {...control}
               ref={textareaRef}
+              // Names are not words: the spell checker would underline most surnames.
+              spellCheck={false}
               rows={10}
               className="min-h-56 text-base md:text-base"
               value={studentsText}

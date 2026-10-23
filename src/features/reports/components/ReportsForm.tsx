@@ -1,12 +1,17 @@
 'use client';
 
+import { useState } from 'react';
+
+import { ChoiceCards } from '@/components/ChoiceCards';
 import { ExportPanel } from '@/components/ExportPanel';
+import { FieldGroup } from '@/components/FormField';
 import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
 import { DOWNLOAD_HELP } from '@/features/classroom/help';
 import { CommonTextField } from '@/features/reports/components/CommonTextField';
 import { HeaderImageField } from '@/features/reports/components/HeaderImageField';
+import { ReportPreview } from '@/features/reports/components/ReportPreview';
 import { StudentEvaluationsField } from '@/features/reports/components/StudentEvaluationsField';
 import { TermFields } from '@/features/reports/components/TermFields';
 import { type TextField, TextFieldsGrid } from '@/features/reports/components/TextFieldsGrid';
@@ -26,6 +31,21 @@ const TOTAL_STEPS = 6;
 
 // docx is heavy: it downloads only when the download step comes near (see ExportPanel).
 const loadReportGenerator = () => import('@/features/reports/services/generateReportFile');
+
+type ExportMode = 'single' | 'perStudent';
+
+const EXPORT_MODE_CHOICES: { value: ExportMode; label: string; description: string }[] = [
+  {
+    value: 'single',
+    label: 'Um arquivo com todos os alunos',
+    description: 'Cada aluno começa numa página nova. Mais fácil para imprimir tudo de uma vez.',
+  },
+  {
+    value: 'perStudent',
+    label: 'Um arquivo para cada aluno',
+    description: 'Vêm todos juntos num arquivo .zip. Bom para enviar o relatório de cada um.',
+  },
+];
 
 const SCHOOL_FIELDS: TextField[] = [
   {
@@ -76,12 +96,16 @@ export const ReportsForm = () => {
     isSchoolDaysFromCalendar,
   } = useReportForm();
 
+  const [exportMode, setExportMode] = useState<ExportMode>('single');
+
   const fileExport = useFileExport({
     errors,
-    fileName: `${toFileName('RAv', `${values.term}º bimestre`, values.classroomName)}.docx`,
+    fileName: `${toFileName('RAv', `${values.term}º bimestre`, values.classroomName)}.${
+      exportMode === 'perStudent' ? 'zip' : 'docx'
+    }`,
     buildFile: async () => {
-      const { generateReportFile } = await loadReportGenerator();
-      return generateReportFile(values);
+      const { generateReportFile, generateReportZip } = await loadReportGenerator();
+      return exportMode === 'perStudent' ? generateReportZip(values) : generateReportFile(values);
     },
     preload: loadReportGenerator,
   });
@@ -172,12 +196,27 @@ export const ReportsForm = () => {
       </StepCard>
 
       <StepCard step={6} totalSteps={TOTAL_STEPS} title="Baixar os relatórios" help={DOWNLOAD_HELP}>
+        <details className="rounded-xl border-2">
+          <summary className="flex min-h-12 cursor-pointer items-center px-4 text-lg font-medium">
+            Ver como vai ficar (prévia)
+          </summary>
+          <div className="px-4 pb-4">
+            <ReportPreview values={values} />
+          </div>
+        </details>
+
+        <FieldGroup id="report-export-mode" legend="Como você quer os arquivos?">
+          <ChoiceCards choices={EXPORT_MODE_CHOICES} value={exportMode} onChange={setExportMode} />
+        </FieldGroup>
+
         <ExportPanel
           summary={
             <div className="space-y-2">
               <p className="text-lg font-medium">
-                {pluralize(studentNames.length, 'relatório', 'relatórios')} (um por aluno, cada um
-                começando numa página nova)
+                {pluralize(studentNames.length, 'relatório', 'relatórios')}{' '}
+                {exportMode === 'perStudent'
+                  ? '(um arquivo para cada aluno, dentro de um .zip)'
+                  : '(num arquivo só, cada aluno começando numa página nova)'}
               </p>
               <p className="text-muted-foreground">
                 {evaluatedCount === studentNames.length && studentNames.length > 0
@@ -186,8 +225,16 @@ export const ReportsForm = () => {
               </p>
             </div>
           }
-          downloadLabel="Baixar relatórios do Word"
-          openWith="o Word (ou Google Documentos, LibreOffice)"
+          downloadLabel={
+            exportMode === 'perStudent'
+              ? 'Baixar um arquivo do Word por aluno (.zip)'
+              : 'Baixar relatórios do Word'
+          }
+          openWith={
+            exportMode === 'perStudent'
+              ? 'um clique duplo para ver os arquivos de cada aluno (no Windows, se pedir, use "Extrair tudo") e abra cada um no Word'
+              : 'o Word (ou Google Documentos, LibreOffice)'
+          }
           fileExport={fileExport}
         />
       </StepCard>
