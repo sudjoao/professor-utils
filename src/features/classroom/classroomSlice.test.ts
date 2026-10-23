@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   classroomReducer,
+  putClassroom,
   removeClassroom,
   saveClassroom,
 } from '@/features/classroom/classroomSlice';
@@ -45,5 +46,24 @@ describe('classroomSlice', () => {
     const state = classroomReducer(savedState, removeClassroom(savedState.classrooms[0].id));
 
     expect(state.classrooms).toEqual([]);
+  });
+
+  it('puts a removed classroom back where it was', () => {
+    const classrooms = ['A', 'B', 'C'].map((name) => ({ id: name, name, students: [] }));
+    const removed = classroomReducer({ classrooms }, removeClassroom('B'));
+    const state = classroomReducer(removed, putClassroom({ classroom: classrooms[1], index: 1 }));
+
+    expect(state.classrooms.map(({ name }) => name)).toEqual(['A', 'B', 'C']);
+  });
+
+  it('puts back the previous version of a classroom that was updated', () => {
+    const before = { id: 'A', name: '7º A', students: [{ id: '1', name: 'Ana' }] };
+    const updated = { ...before, students: [{ id: '2', name: 'Carla' }] };
+    const state = classroomReducer(
+      { classrooms: [updated] },
+      putClassroom({ classroom: before, index: 0 }),
+    );
+
+    expect(state.classrooms).toEqual([before]);
   });
 });

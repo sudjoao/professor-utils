@@ -20,6 +20,7 @@ A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
 - erros aparecem ao lado do campo e num resumo que recebe o foco, com links para cada campo;
 - tudo funciona pelo teclado (link "Pular para o conteúdo", foco sempre visível) e com leitor de tela;
 - depois do download, um aviso diz onde encontrar o arquivo.
+- nada de "Tem certeza?": as ações acontecem na hora e um aviso ao lado oferece **Desfazer** (`UndoNotice` + `useUndoNotice`), sem sumir sozinho.
 
 Ao criar telas novas, use os componentes de `src/components` (abaixo) em vez de montar label/erro à mão, e prefira `ChoiceCards`/`OptionButtons` a abas para escolhas.
 

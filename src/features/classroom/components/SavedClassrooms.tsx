@@ -1,6 +1,7 @@
 import { Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
+import { UndoNotice } from '@/components/UndoNotice';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -11,37 +12,39 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  putClassroom,
   removeClassroom,
   saveClassroom,
   selectClassrooms,
 } from '@/features/classroom/classroomSlice';
-import { isSameName, wouldReplaceStudents } from '@/features/classroom/services/classForm';
-import type { Classroom } from '@/features/classroom/types';
+import {
+  isSameName,
+  toClassFormValues,
+  wouldReplaceStudents,
+} from '@/features/classroom/services/classForm';
+import type { Classroom, ClassFormValues } from '@/features/classroom/types';
+import { useUndoNotice } from '@/lib/react/useUndoNotice';
 import { useAppDispatch, usePersistedSelector } from '@/store/hooks';
 
 const NO_CLASSROOMS: Classroom[] = [];
 
+type LoadableValues = Pick<ClassFormValues, 'classroomName' | 'subject' | 'studentsText'>;
+
 type SavedClassroomsProps = {
-  classroomName: string;
-  subject: string;
+  values: LoadableValues;
   studentNames: string[];
-  onLoad: (classroom: Classroom) => void;
+  onChange: (changes: LoadableValues) => void;
 };
 
-export const SavedClassrooms = ({
-  classroomName,
-  subject,
-  studentNames,
-  onLoad,
-}: SavedClassroomsProps) => {
+export const SavedClassrooms = ({ values, studentNames, onChange }: SavedClassroomsProps) => {
   const dispatch = useAppDispatch();
   const classrooms = usePersistedSelector(selectClassrooms, NO_CLASSROOMS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState('');
+  const notice = useUndoNotice();
 
-  const trimmedName = classroomName.trim();
+  const trimmedName = values.classroomName.trim();
   const canSave = trimmedName.length > 0 && studentNames.length > 0;
-  const isUpdate = classrooms.some(({ name }) => isSameName(name, trimmedName));
+  const existingClassroom = classrooms.find(({ name }) => isSameName(name, trimmedName));
   const selectedClassroom = classrooms.find(({ id }) => id === selectedId);
   const classroomItems = Object.fromEntries(classrooms.map(({ id, name }) => [id, name]));
 
@@ -51,40 +54,57 @@ export const SavedClassrooms = ({
     if (!classroom) {
       return;
     }
-    if (
-      wouldReplaceStudents(studentNames, classroom) &&
-      !window.confirm(
-        `Os alunos que estão escritos agora vão ser trocados pelos da turma "${classroom.name}". Deseja continuar?`,
-      )
-    ) {
-      return;
-    }
+
+    const previousValues = { ...values };
+    const previousSelectedId = selectedId;
+    const replacedStudents = wouldReplaceStudents(studentNames, classroom);
 
     setSelectedId(classroom.id);
-    onLoad(classroom);
-    setStatusMessage(`Turma "${classroom.name}" carregada.`);
+    onChange(toClassFormValues(classroom));
+    notice.show(
+      replacedStudents
+        ? `Turma "${classroom.name}" carregada. Os nomes que estavam escritos foram trocados pelos dessa turma.`
+        : `Turma "${classroom.name}" carregada.`,
+      () => {
+        setSelectedId(previousSelectedId);
+        onChange(previousValues);
+      },
+    );
   };
 
   const handleSave = () => {
-    dispatch(saveClassroom({ name: trimmedName, subject, studentNames }));
-    setStatusMessage(
-      `Turma "${trimmedName}" salva neste computador. Da próxima vez, é só escolher na lista "Usar uma turma salva".`,
+    const previousVersion = existingClassroom;
+    const action = dispatch(
+      saveClassroom({ name: trimmedName, subject: values.subject, studentNames }),
+    );
+
+    notice.show(
+      previousVersion
+        ? `Turma "${trimmedName}" atualizada com os nomes de agora.`
+        : `Turma "${trimmedName}" salva neste computador. Da próxima vez, é só escolher em "Usar uma turma salva".`,
+      previousVersion
+        ? () => dispatch(putClassroom({ classroom: previousVersion, index: 0 }))
+        : () => dispatch(removeClassroom(action.payload.id)),
     );
   };
 
   const handleRemove = () => {
-    if (
-      !selectedClassroom ||
-      !window.confirm(
-        `Apagar a turma salva "${selectedClassroom.name}"? Os nomes escritos na tela não serão apagados.`,
-      )
-    ) {
+    if (!selectedClassroom) {
       return;
     }
 
-    dispatch(removeClassroom(selectedClassroom.id));
+    const classroom = selectedClassroom;
+    const index = classrooms.indexOf(classroom);
+
+    dispatch(removeClassroom(classroom.id));
     setSelectedId(null);
-    setStatusMessage(`Turma "${selectedClassroom.name}" apagada.`);
+    notice.show(
+      `Turma salva "${classroom.name}" apagada. Os nomes escritos na tela continuam.`,
+      () => {
+        dispatch(putClassroom({ classroom, index }));
+        setSelectedId(classroom.id);
+      },
+    );
   };
 
   return (
@@ -130,7 +150,7 @@ export const SavedClassrooms = ({
           onClick={handleSave}
         >
           <Save data-icon="inline-start" />
-          {isUpdate ? 'Atualizar a turma salva' : 'Salvar esta turma para usar depois'}
+          {existingClassroom ? 'Atualizar a turma salva' : 'Salvar esta turma para usar depois'}
         </Button>
         {!canSave && (
           <p id="save-classroom-hint" className="text-sm text-muted-foreground">
@@ -139,9 +159,7 @@ export const SavedClassrooms = ({
         )}
       </div>
 
-      <p role="status" className="text-sm font-medium">
-        {statusMessage}
-      </p>
+      <UndoNotice notice={notice.notice} onUndo={notice.undo} onDismiss={notice.dismiss} />
     </div>
   );
 };

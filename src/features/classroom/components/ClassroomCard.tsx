@@ -2,13 +2,15 @@ import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
 import { StepCard } from '@/components/StepCard';
+import { UndoNotice } from '@/components/UndoNotice';
 import { Button } from '@/components/ui/button';
 import { ClassInfoFields } from '@/features/classroom/components/ClassInfoFields';
 import { SavedClassrooms } from '@/features/classroom/components/SavedClassrooms';
 import { StudentsField } from '@/features/classroom/components/StudentsField';
-import { toClassFormValues } from '@/features/classroom/services/classForm';
 import type { ClassFormValues, ClassInfo } from '@/features/classroom/types';
+import { focusField } from '@/lib/forms/focusField';
 import { type FormError, getFieldError } from '@/lib/forms/formErrors';
+import { useUndoNotice } from '@/lib/react/useUndoNotice';
 
 /** The teacher's name stays: it is the same person starting another class. */
 const NEW_CLASS_VALUES: Partial<ClassFormValues> = {
@@ -44,15 +46,23 @@ export const ClassroomCard = ({
     (value) => value.trim().length > 0,
   );
 
+  const notice = useUndoNotice();
+
   const handleStartNewClass = () => {
-    if (
-      window.confirm(
-        'Limpar a turma, a disciplina e os nomes dos alunos para começar outra turma? As turmas salvas não são apagadas.',
-      )
-    ) {
-      onChange(NEW_CLASS_VALUES);
-      setNewClassCount((count) => count + 1);
-    }
+    const previousValues = {
+      classroomName: values.classroomName,
+      subject: values.subject,
+      studentsText: values.studentsText,
+    };
+
+    onChange(NEW_CLASS_VALUES);
+    setNewClassCount((count) => count + 1);
+    // The button goes away with the data; the cursor goes where the new class starts.
+    requestAnimationFrame(() => focusField('classroomName'));
+    notice.show(
+      'Turma, disciplina e nomes dos alunos foram limpos para uma turma nova. As turmas salvas continuam guardadas.',
+      () => onChange(previousValues),
+    );
   };
 
   return (
@@ -64,10 +74,9 @@ export const ClassroomCard = ({
     >
       <SavedClassrooms
         key={newClassCount}
-        classroomName={values.classroomName}
-        subject={values.subject}
+        values={values}
         studentNames={studentNames}
-        onLoad={(classroom) => onChange(toClassFormValues(classroom))}
+        onChange={onChange}
       />
       <ClassInfoFields
         classroomName={values.classroomName}
@@ -92,6 +101,7 @@ export const ClassroomCard = ({
           Começar uma turma nova
         </Button>
       )}
+      <UndoNotice notice={notice.notice} onUndo={notice.undo} onDismiss={notice.dismiss} />
     </StepCard>
   );
 };

@@ -7,6 +7,7 @@ import {
   type StudentListFix,
   toNameCase,
 } from '@/features/classroom/services/studentList';
+import { useUndoNotice } from '@/lib/react/useUndoNotice';
 import { insertText } from '@/lib/text/insertText';
 import { parseLines } from '@/lib/text/parseLines';
 import { pluralize } from '@/lib/text/pluralize';
@@ -26,13 +27,6 @@ const FILE_ERRORS = {
   failed: 'Não foi possível abrir esse arquivo. Confira se ele abre no Excel e tente de novo.',
 };
 
-/** A change the teacher can undo: the message says what happened. */
-type Notice = {
-  message: string;
-  previousText: string;
-  resultText: string;
-};
-
 const describeFixes = (fixes: StudentListFix[]): string =>
   fixes.map((fix) => FIX_MESSAGES[fix]).join(', ');
 
@@ -48,14 +42,22 @@ export const useStudentListTools = ({
   textareaRef,
   onChange,
 }: StudentListToolsOptions) => {
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const notice = useUndoNotice();
+  // The list as the last automatic change left it; editing it by hand makes the notice stale.
+  const [resultText, setResultText] = useState<string | null>(null);
   const [fileError, setFileError] = useState('');
   const [isReadingFile, setIsReadingFile] = useState(false);
 
   const replaceText = (text: string, message: string) => {
-    setNotice({ message, previousText: studentsText, resultText: text });
+    const previousText = studentsText;
+
+    setResultText(text);
     setFileError('');
     onChange(text);
+    notice.show(message, () => {
+      setResultText(previousText);
+      onChange(previousText);
+    });
   };
 
   /** Pasted lists with numbers, headers or several columns go in already cleaned. */
@@ -112,24 +114,17 @@ export const useStudentListTools = ({
     );
 
   // Once the teacher edits the list again, undoing would throw that work away: the notice goes.
-  const activeNotice = notice?.resultText === studentsText ? notice : null;
-
-  const undo = () => {
-    if (activeNotice) {
-      onChange(activeNotice.previousText);
-      setNotice(null);
-    }
-  };
+  const isNoticeCurrent = resultText === studentsText;
 
   return {
-    notice: activeNotice,
+    notice: isNoticeCurrent ? notice.notice : null,
+    undo: notice.undo,
+    dismissNotice: notice.dismiss,
     fileError,
     isReadingFile,
     hasUpperCaseNames,
     handlePaste,
     importFile,
     fixNameCase,
-    undo,
-    dismissNotice: () => setNotice(null),
   };
 };

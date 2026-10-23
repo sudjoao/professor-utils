@@ -51,6 +51,18 @@ const classroomSlice = createSlice({
         },
       }),
     },
+    /** Puts a classroom back (after "Desfazer"): replaces the one with its id, or inserts it at `index`. */
+    putClassroom: (state, action: PayloadAction<{ classroom: Classroom; index: number }>) => {
+      const { classroom, index } = action.payload;
+      const currentIndex = state.classrooms.findIndex(({ id }) => id === classroom.id);
+
+      if (currentIndex >= 0) {
+        state.classrooms[currentIndex] = classroom;
+        return;
+      }
+
+      state.classrooms.splice(index, 0, classroom);
+    },
     removeClassroom: (state, action: PayloadAction<string>) => {
       state.classrooms = state.classrooms.filter((classroom) => classroom.id !== action.payload);
     },
@@ -72,6 +84,6 @@ const classroomSlice = createSlice({
   },
 });
 
-export const { saveClassroom, removeClassroom, setStudents } = classroomSlice.actions;
+export const { saveClassroom, putClassroom, removeClassroom, setStudents } = classroomSlice.actions;
 export const { selectClassrooms } = classroomSlice.selectors;
 export const classroomReducer = classroomSlice.reducer;

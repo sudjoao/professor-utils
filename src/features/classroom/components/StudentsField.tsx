@@ -1,7 +1,8 @@
-import { FileSpreadsheet, Undo2 } from 'lucide-react';
+import { FileSpreadsheet } from 'lucide-react';
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
 import { FormField } from '@/components/FormField';
+import { UndoNotice } from '@/components/UndoNotice';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -93,20 +94,7 @@ export const StudentsField = ({
         )}
       </FormField>
 
-      <div role="status">
-        {tools.notice && (
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-green-700 bg-green-50 p-3 text-green-950">
-            <p className="flex-1">{tools.notice.message}</p>
-            <Button variant="outline" className="bg-background" onClick={tools.undo}>
-              <Undo2 data-icon="inline-start" />
-              Desfazer
-            </Button>
-            <Button variant="ghost" onClick={tools.dismissNotice}>
-              Ok
-            </Button>
-          </div>
-        )}
-      </div>
+      <UndoNotice notice={tools.notice} onUndo={tools.undo} onDismiss={tools.dismissNotice} />
 
       {tools.hasUpperCaseNames && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl bg-muted p-3">
