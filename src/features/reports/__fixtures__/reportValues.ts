@@ -21,5 +21,6 @@ export const buildReportValues = (overrides: Partial<ReportFormValues> = {}): Re
   documentDate: '2022-07-11',
   commonText: '',
   headerImage: null,
+  evaluations: {},
   ...overrides,
 });

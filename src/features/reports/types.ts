@@ -19,6 +19,13 @@ export type ReportSettings = {
   coordinatorRegistration: string;
 };
 
+/** What the teacher writes for one student in the app (all optional). */
+export type StudentEvaluation = {
+  text: string;
+  /** `null` while not filled in: the document keeps the blank to fill in Word. */
+  absences: number | null;
+};
+
 export type ReportFormValues = ClassFormValues &
   ReportSettings & {
     schoolYear: string;
@@ -26,12 +33,15 @@ export type ReportFormValues = ClassFormValues &
     commonText: string;
     /** Uploaded header image as a data URL; `null` uses the default DF coat of arms. */
     headerImage: string | null;
+    /** Evaluations by student key (see `getStudentKey`). */
+    evaluations: Record<string, StudentEvaluation>;
   };
 
 export type StudentReport = {
   name: string;
   /** Evaluation paragraphs; empty when the teacher will write everything in Word. */
   paragraphs: string[];
+  absences: number | null;
 };
 
 export type ReportDocumentData = {

@@ -222,7 +222,11 @@ const buildStudentSection = (
     boldLine(`Estudante: ${student.name}`),
     emptyLine(),
     tabbedBoldLine(
-      [`${data.term}º BIMESTRE`, `Total de dias letivos: ${data.schoolDays}`, 'Total de Faltas: '],
+      [
+        `${data.term}º BIMESTRE`,
+        `Total de dias letivos: ${data.schoolDays}`,
+        `Total de Faltas: ${student.absences ?? ''}`,
+      ],
       TERM_TAB_STOPS,
     ),
     emptyLine(),

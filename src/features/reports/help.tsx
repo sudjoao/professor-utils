@@ -31,3 +31,18 @@ export const EVALUATION_HELP = (
     </li>
   </ol>
 );
+
+export const STUDENT_EVALUATIONS_HELP = (
+  <ol>
+    <li>Clique no nome de um aluno para abrir o espaço da avaliação dele.</li>
+    <li>
+      Escreva o texto ou use &quot;Inserir uma frase pronta&quot; e ajuste. O nome do aluno já entra
+      na frase.
+    </li>
+    <li>Preencha o total de faltas, se já souber.</li>
+    <li>
+      Clique em &quot;Próximo aluno&quot; para seguir. Tudo fica salvo neste computador, para esta
+      turma e este bimestre: pode fechar e continuar depois.
+    </li>
+  </ol>
+);

@@ -28,6 +28,11 @@ const data: BackupData = {
   classDraft: { ...INITIAL_CLASS_FORM_VALUES, teacherName: 'Sandra' },
   sheetStyle: { ...INITIAL_SHEET_STYLE, paletteId: 'blue' },
   reportSettings: { ...INITIAL_REPORT_SETTINGS, schoolName: 'EC 18' },
+  studentEvaluations: {
+    evaluations: { '7º a|2|ana': { text: 'Leu bem.', absences: 2 } },
+    commonTexts: { '7º a|2': 'Comum.' },
+  },
+  customPhrases: [{ id: 'p1', text: '[ALUNO] participou.' }],
   headerImage: 'data:image/png;base64,AAAA',
 };
 
@@ -61,6 +66,11 @@ describe('serializeBackup / parseBackup', () => {
       data: {
         classrooms: [{ id: '1', name: '7º A', students: [{ id: 'a', name: 'Ana' }, 42] }, 'x'],
         classDraft: { teacherName: 'Sandra', sortStudents: 'yes' },
+        studentEvaluations: {
+          evaluations: { ok: { text: 'A', absences: 1 }, broken: { text: 3 } },
+          commonTexts: { ok: 'B', broken: 4 },
+        },
+        customPhrases: [{ id: 'p', text: 'C' }, { text: 'no id' }],
         headerImage: 'https://example.com/image.png',
       },
     });
@@ -73,6 +83,11 @@ describe('serializeBackup / parseBackup', () => {
       classDraft: { ...INITIAL_CLASS_FORM_VALUES, teacherName: 'Sandra' },
       sheetStyle: INITIAL_SHEET_STYLE,
       reportSettings: INITIAL_REPORT_SETTINGS,
+      studentEvaluations: {
+        evaluations: { ok: { text: 'A', absences: 1 } },
+        commonTexts: { ok: 'B' },
+      },
+      customPhrases: [{ id: 'p', text: 'C' }],
       headerImage: null,
     });
   });

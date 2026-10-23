@@ -7,16 +7,22 @@ import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
 import { DOWNLOAD_HELP } from '@/features/classroom/help';
 import { CommonTextField } from '@/features/reports/components/CommonTextField';
 import { HeaderImageField } from '@/features/reports/components/HeaderImageField';
+import { StudentEvaluationsField } from '@/features/reports/components/StudentEvaluationsField';
 import { TermFields } from '@/features/reports/components/TermFields';
 import { type TextField, TextFieldsGrid } from '@/features/reports/components/TextFieldsGrid';
-import { EVALUATION_HELP, SCHOOL_HELP, SIGNATURES_HELP } from '@/features/reports/help';
+import {
+  EVALUATION_HELP,
+  SCHOOL_HELP,
+  SIGNATURES_HELP,
+  STUDENT_EVALUATIONS_HELP,
+} from '@/features/reports/help';
 import { useReportForm } from '@/features/reports/hooks/useReportForm';
 import { REPORT_SETTINGS_KEYS } from '@/features/reports/reportSettingsSlice';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 // docx is heavy: it downloads only when the download step comes near (see ExportPanel).
 const loadReportGenerator = () => import('@/features/reports/services/generateReportFile');
@@ -61,6 +67,9 @@ export const ReportsForm = () => {
     values,
     updateValues,
     saveHeaderImage,
+    getEvaluation,
+    updateEvaluation,
+    clearEvaluations,
     studentNames,
     errors,
     currentTerm,
@@ -77,6 +86,7 @@ export const ReportsForm = () => {
     preload: loadReportGenerator,
   });
   const visibleErrors = fileExport.visibleErrors;
+  const evaluatedCount = studentNames.filter((name) => getEvaluation(name)?.text.trim()).length;
   const savedSettings = JSON.stringify([
     ...REPORT_SETTINGS_KEYS.map((key) => values[key]),
     // The length is enough to notice a new image, without comparing ~1 MB of text.
@@ -144,7 +154,24 @@ export const ReportsForm = () => {
         />
       </StepCard>
 
-      <StepCard step={5} totalSteps={TOTAL_STEPS} title="Baixar os relatórios" help={DOWNLOAD_HELP}>
+      <StepCard
+        step={5}
+        totalSteps={TOTAL_STEPS}
+        title="Avaliação de cada aluno"
+        description="Opcional. Escreva aqui a avaliação e as faltas de cada aluno; o que ficar em branco você completa no Word."
+        status={<SaveStatus value={JSON.stringify(values.evaluations).length.toString()} />}
+        help={STUDENT_EVALUATIONS_HELP}
+      >
+        <StudentEvaluationsField
+          studentNames={studentNames}
+          schoolDays={values.schoolDays}
+          getEvaluation={getEvaluation}
+          onChange={updateEvaluation}
+          onClear={clearEvaluations}
+        />
+      </StepCard>
+
+      <StepCard step={6} totalSteps={TOTAL_STEPS} title="Baixar os relatórios" help={DOWNLOAD_HELP}>
         <ExportPanel
           summary={
             <div className="space-y-2">
@@ -153,7 +180,9 @@ export const ReportsForm = () => {
                 começando numa página nova)
               </p>
               <p className="text-muted-foreground">
-                O total de faltas e a avaliação de cada aluno ficam para você preencher no Word.
+                {evaluatedCount === studentNames.length && studentNames.length > 0
+                  ? 'Todos os alunos já têm avaliação escrita aqui.'
+                  : `${evaluatedCount} de ${studentNames.length} alunos com avaliação escrita aqui; o que faltar (avaliação ou faltas) você completa no Word.`}
               </p>
             </div>
           }

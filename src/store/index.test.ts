@@ -17,6 +17,8 @@ describe('store', () => {
       classDraft: { ...INITIAL_CLASS_FORM_VALUES, teacherName: 'Sandra' },
       sheetStyle: { ...INITIAL_SHEET_STYLE, paletteId: 'green' as const },
       reportSettings: { ...INITIAL_REPORT_SETTINGS, schoolName: 'EC 18' },
+      studentEvaluations: { evaluations: {}, commonTexts: { '7º a|2': 'Comum.' } },
+      phraseBank: { customPhrases: [] },
     };
     store.dispatch(stateRestored(restored));
 

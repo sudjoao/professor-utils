@@ -30,18 +30,28 @@ export const useBackup = () => {
   const restoreNotice = useUndoNotice();
 
   const readCurrentData = (): BackupData => {
-    const { classroom, classDraft, sheetStyle, reportSettings } = store.getState();
+    const { classroom, classDraft, sheetStyle, reportSettings, studentEvaluations, phraseBank } =
+      store.getState();
     return {
       classrooms: classroom.classrooms,
       classDraft,
       sheetStyle,
       reportSettings,
+      studentEvaluations,
+      customPhrases: phraseBank.customPhrases,
       headerImage: headerImageStorage.read(),
     };
   };
 
-  const applyData = ({ classrooms, headerImage, ...slices }: BackupData): boolean => {
-    dispatch(stateRestored({ classroom: { classrooms }, ...slices }));
+  const applyData = ({
+    classrooms,
+    customPhrases,
+    headerImage,
+    ...slices
+  }: BackupData): boolean => {
+    dispatch(
+      stateRestored({ classroom: { classrooms }, phraseBank: { customPhrases }, ...slices }),
+    );
     return headerImageStorage.write(headerImage);
   };
 

@@ -2,6 +2,9 @@ import type { BackupData, BackupFile, BackupParseResult } from '@/features/backu
 import { INITIAL_SHEET_STYLE } from '@/features/classroom/constants';
 import { INITIAL_CLASS_FORM_VALUES } from '@/features/classroom/services/classForm';
 import type { Classroom } from '@/features/classroom/types';
+import type { CustomPhrase } from '@/features/reports/phraseBankSlice';
+import type { StudentEvaluationsState } from '@/features/reports/studentEvaluationsSlice';
+import type { StudentEvaluation } from '@/features/reports/types';
 import { INITIAL_REPORT_SETTINGS } from '@/features/reports/reportSettingsSlice';
 import { daysBetween, type IsoDate } from '@/lib/date/isoDate';
 import { mergeKnownFields } from '@/lib/object/mergeKnownFields';
@@ -34,6 +37,31 @@ const toClassroom = (value: unknown): Classroom | null => {
   };
 };
 
+const isEvaluation = (value: unknown): value is StudentEvaluation =>
+  isRecord(value) &&
+  isString(value.text) &&
+  (value.absences === null || (typeof value.absences === 'number' && value.absences >= 0));
+
+/** Keeps the entries of a record whose value passes the check. */
+const filterRecord = <Value>(value: unknown, isValid: (item: unknown) => item is Value) =>
+  Object.fromEntries(
+    Object.entries(isRecord(value) ? value : {}).filter(([, item]) => isValid(item)),
+  ) as Record<string, Value>;
+
+const toStudentEvaluations = (value: unknown): StudentEvaluationsState => {
+  const source = isRecord(value) ? value : {};
+  return {
+    evaluations: filterRecord(source.evaluations, isEvaluation),
+    commonTexts: filterRecord(source.commonTexts, isString),
+  };
+};
+
+const toCustomPhrases = (value: unknown): CustomPhrase[] =>
+  (Array.isArray(value) ? value : []).filter(
+    (phrase): phrase is CustomPhrase =>
+      isRecord(phrase) && isString(phrase.id) && isString(phrase.text),
+  );
+
 const toHeaderImage = (value: unknown): string | null =>
   isString(value) && value.startsWith('data:image/') ? value : null;
 
@@ -48,6 +76,8 @@ export const normalizeBackupData = (data: unknown): BackupData => {
     classDraft: mergeKnownFields(INITIAL_CLASS_FORM_VALUES, source.classDraft),
     sheetStyle: mergeKnownFields(INITIAL_SHEET_STYLE, source.sheetStyle),
     reportSettings: mergeKnownFields(INITIAL_REPORT_SETTINGS, source.reportSettings),
+    studentEvaluations: toStudentEvaluations(source.studentEvaluations),
+    customPhrases: toCustomPhrases(source.customPhrases),
     headerImage: toHeaderImage(source.headerImage),
   };
 };

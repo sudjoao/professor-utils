@@ -9,8 +9,21 @@ import {
   selectReportSettings,
   updateReportSettings,
 } from '@/features/reports/reportSettingsSlice';
+import {
+  belongsToClassTerm,
+  getClassTermKey,
+  getStudentKey,
+} from '@/features/reports/services/studentEvaluations';
 import { validateReportForm } from '@/features/reports/services/validateReportForm';
-import type { ReportFormValues } from '@/features/reports/types';
+import {
+  clearClassTerm,
+  INITIAL_STUDENT_EVALUATIONS,
+  putStudentEvaluations,
+  selectStudentEvaluations,
+  updateCommonText,
+  updateStudentEvaluation,
+} from '@/features/reports/studentEvaluationsSlice';
+import type { ReportFormValues, StudentEvaluation } from '@/features/reports/types';
 import {
   findCurrentOrLastTerm,
   getSchoolTerm,
@@ -21,15 +34,16 @@ import { useStoredValue } from '@/lib/storage/useStoredValue';
 import { useAppDispatch, usePersistedSelector } from '@/store/hooks';
 
 /**
- * What changes on every export. The class comes from the shared draft and the school data
- * from the persisted `reportSettings` slice.
+ * What changes on every export. The class comes from the shared draft, the school data from
+ * `reportSettings` and the texts from `studentEvaluations`, all saved in the browser.
  */
-type LocalValues = Pick<ReportFormValues, 'schoolYear' | 'documentDate' | 'commonText'>;
+type LocalValues = Pick<ReportFormValues, 'schoolYear' | 'documentDate'>;
+
+type EditableValues = Partial<Omit<ReportFormValues, 'headerImage' | 'evaluations'>>;
 
 const INITIAL_LOCAL_VALUES: LocalValues = {
   schoolYear: '',
   documentDate: '',
-  commonText: '',
 };
 
 export const useReportForm = () => {
@@ -38,6 +52,11 @@ export const useReportForm = () => {
   const settings = usePersistedSelector(selectReportSettings, INITIAL_REPORT_SETTINGS);
   const [localValues, setLocalValues] = useState<LocalValues>(INITIAL_LOCAL_VALUES);
   const headerImage = useStoredValue(headerImageStorage);
+  const { evaluations, commonTexts } = usePersistedSelector(
+    selectStudentEvaluations,
+    INITIAL_STUDENT_EVALUATIONS,
+  );
+  const classTermKey = getClassTermKey(classDraft.classroomName, settings.term);
   const today = useToday();
 
   const schoolYear = localValues.schoolYear || today?.slice(0, 4) || '';
@@ -55,13 +74,30 @@ export const useReportForm = () => {
       documentDate: localValues.documentDate || today || '',
       schoolDays: settings.schoolDays || calendarSchoolDays || 0,
       headerImage,
+      commonText: commonTexts[classTermKey] ?? '',
+      evaluations,
     }),
-    [classDraft, localValues, settings, today, schoolYear, calendarSchoolDays, headerImage],
+    [
+      classDraft,
+      localValues,
+      settings,
+      today,
+      schoolYear,
+      calendarSchoolDays,
+      headerImage,
+      commonTexts,
+      classTermKey,
+      evaluations,
+    ],
   );
 
   // The header image is saved apart, with `saveHeaderImage`.
-  const updateValues = (changes: Partial<Omit<ReportFormValues, 'headerImage'>>) => {
+  const updateValues = ({ commonText, ...changes }: EditableValues) => {
     const [settingsChanges, local] = splitByKeys(splitChanges(changes), REPORT_SETTINGS_KEYS);
+
+    if (commonText !== undefined) {
+      dispatch(updateCommonText({ key: classTermKey, text: commonText }));
+    }
     if (hasEntries(settingsChanges)) {
       dispatch(updateReportSettings(settingsChanges));
     }
@@ -73,6 +109,25 @@ export const useReportForm = () => {
   const studentNames = useMemo(() => getStudentNames(values), [values]);
   const errors = useMemo(() => validateReportForm(values), [values]);
 
+  const getEvaluation = (studentName: string): StudentEvaluation | undefined =>
+    evaluations[getStudentKey(classTermKey, studentName)];
+
+  const updateEvaluation = (studentName: string, changes: Partial<StudentEvaluation>) =>
+    dispatch(updateStudentEvaluation({ key: getStudentKey(classTermKey, studentName), changes }));
+
+  /** Clears the evaluations of this class and term; returns how to put them back. */
+  const clearEvaluations = () => {
+    const snapshot = {
+      evaluations: Object.fromEntries(
+        Object.entries(evaluations).filter(([key]) => belongsToClassTerm(key, classTermKey)),
+      ),
+      commonTexts: {},
+    };
+
+    dispatch(clearClassTerm(classTermKey));
+    return () => dispatch(putStudentEvaluations(snapshot));
+  };
+
   /** Returns `false` when the browser has no room left for the image. */
   const saveHeaderImage = (image: string | null): boolean => headerImageStorage.write(image);
 
@@ -80,6 +135,9 @@ export const useReportForm = () => {
     values,
     updateValues,
     saveHeaderImage,
+    getEvaluation,
+    updateEvaluation,
+    clearEvaluations,
     studentNames,
     errors,
     currentTerm,

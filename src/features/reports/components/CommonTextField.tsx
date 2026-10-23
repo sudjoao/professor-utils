@@ -4,10 +4,11 @@ import { useRef } from 'react';
 import { FormField } from '@/components/FormField';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { PhrasePicker } from '@/features/reports/components/PhrasePicker';
 import { STUDENT_PLACEHOLDER } from '@/features/reports/constants';
 import { buildEvaluationParagraphs } from '@/features/reports/services/buildReportData';
 import { fieldId } from '@/lib/forms/formErrors';
-import { insertText } from '@/lib/text/insertText';
+import { insertSentence, insertText } from '@/lib/text/insertText';
 
 /** Used in the preview while the teacher has not typed any student yet. */
 const EXAMPLE_STUDENT_NAME = 'Ana Souza';
@@ -26,11 +27,11 @@ export const CommonTextField = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewParagraphs = buildEvaluationParagraphs(commonText, firstStudentName);
 
-  const insertStudentName = () => {
+  const insertAtCursor = (insert: typeof insertText, insertion: string) => {
     const textarea = textareaRef.current;
-    const { text, cursor } = insertText(
+    const { text, cursor } = insert(
       commonText,
-      STUDENT_PLACEHOLDER,
+      insertion,
       textarea?.selectionStart ?? commonText.length,
       textarea?.selectionEnd ?? commonText.length,
     );
@@ -62,6 +63,8 @@ export const CommonTextField = ({
           <Textarea
             {...control}
             ref={textareaRef}
+            lang="pt-BR"
+            spellCheck
             rows={10}
             className="min-h-56 text-base md:text-base"
             value={commonText}
@@ -71,10 +74,18 @@ export const CommonTextField = ({
         )}
       </FormField>
 
-      <Button variant="outline" size="lg" className="h-10" onClick={insertStudentName}>
-        <UserRound data-icon="inline-start" />
-        Inserir o nome do aluno
-      </Button>
+      <div className="flex flex-wrap items-start gap-2">
+        <Button
+          variant="outline"
+          size="lg"
+          className="h-10"
+          onClick={() => insertAtCursor(insertText, STUDENT_PLACEHOLDER)}
+        >
+          <UserRound data-icon="inline-start" />
+          Inserir o nome do aluno
+        </Button>
+        <PhrasePicker onInsert={(phrase) => insertAtCursor(insertSentence, phrase)} />
+      </div>
 
       {previewParagraphs.length > 0 && (
         <section

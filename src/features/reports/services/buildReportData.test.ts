@@ -4,7 +4,9 @@ import { buildReportValues } from '@/features/reports/__fixtures__/reportValues'
 import {
   buildEvaluationParagraphs,
   buildReportData,
+  buildStudentParagraphs,
 } from '@/features/reports/services/buildReportData';
+import { getClassTermKey, getStudentKey } from '@/features/reports/services/studentEvaluations';
 
 describe('buildEvaluationParagraphs', () => {
   it('returns no paragraphs when there is no common text', () => {
@@ -42,5 +44,31 @@ describe('buildReportData', () => {
     const data = buildReportData(buildReportValues({ commonText: '[ALUNO] participou.' }));
 
     expect(data.students[0].paragraphs).toEqual(['Alice Sousa Silvestre participou.']);
+  });
+
+  it('uses what was written for each student and their absences', () => {
+    const key = getStudentKey(getClassTermKey('A', 2), 'Bernardo Andrade');
+    const data = buildReportData(
+      buildReportValues({
+        commonText: 'Texto comum de [ALUNO].',
+        evaluations: { [key]: { text: 'Bernardo avançou na leitura.', absences: 3 } },
+      }),
+    );
+    const bernardo = data.students.find(({ name }) => name === 'BERNARDO ANDRADE');
+    const alice = data.students.find(({ name }) => name === 'ALICE SOUSA SILVESTRE');
+
+    expect(bernardo).toEqual({
+      name: 'BERNARDO ANDRADE',
+      paragraphs: ['Texto comum de Bernardo Andrade.', '', 'Bernardo avançou na leitura.'],
+      absences: 3,
+    });
+    expect(alice?.absences).toBeNull();
+  });
+});
+
+describe('buildStudentParagraphs', () => {
+  it('uses only the text that was written', () => {
+    expect(buildStudentParagraphs('', 'Só dele.', 'Ana')).toEqual(['Só dele.']);
+    expect(buildStudentParagraphs('Comum.', '', 'Ana')).toEqual(['Comum.']);
   });
 });

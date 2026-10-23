@@ -1,5 +1,10 @@
 import { getStudentNames } from '@/features/classroom/services/classForm';
 import { STUDENT_PLACEHOLDER } from '@/features/reports/constants';
+import {
+  EMPTY_EVALUATION,
+  getClassTermKey,
+  getStudentKey,
+} from '@/features/reports/services/studentEvaluations';
 import type { ReportDocumentData, ReportFormValues } from '@/features/reports/types';
 import { formatLongDate } from '@/lib/date/isoDate';
 
@@ -28,23 +33,45 @@ export const buildEvaluationParagraphs = (commonText: string, studentName: strin
     .map((line) => line.trimEnd().replace(STUDENT_PLACEHOLDER_PATTERN, studentName));
 };
 
-export const buildReportData = (values: ReportFormValues): ReportDocumentData => ({
-  schoolYear: values.schoolYear.trim(),
-  stage: values.stage.trim(),
-  regionalCoordination: values.regionalCoordination.trim(),
-  schoolName: values.schoolName.trim(),
-  grade: values.grade.trim(),
-  classroomName: values.classroomName.trim(),
-  shift: values.shift,
-  // The official form writes people's names in capital letters.
-  teacherName: toUpperCase(values.teacherName),
-  term: values.term,
-  schoolDays: values.schoolDays,
-  placeAndDate: `${values.city.trim()}, ${formatLongDate(values.documentDate)}.`,
-  teacherRegistration: values.teacherRegistration.trim(),
-  coordinatorRegistration: values.coordinatorRegistration.trim(),
-  students: getStudentNames(values).map((name) => ({
-    name: toUpperCase(name),
-    paragraphs: buildEvaluationParagraphs(values.commonText, name),
-  })),
-});
+/** The common text first, then what was written for the student, with a blank line between. */
+export const buildStudentParagraphs = (
+  commonText: string,
+  studentText: string,
+  studentName: string,
+): string[] => {
+  const common = buildEvaluationParagraphs(commonText, studentName);
+  const own = buildEvaluationParagraphs(studentText, studentName);
+
+  return common.length > 0 && own.length > 0 ? [...common, '', ...own] : [...common, ...own];
+};
+
+export const buildReportData = (values: ReportFormValues): ReportDocumentData => {
+  const classTermKey = getClassTermKey(values.classroomName, values.term);
+
+  return {
+    schoolYear: values.schoolYear.trim(),
+    stage: values.stage.trim(),
+    regionalCoordination: values.regionalCoordination.trim(),
+    schoolName: values.schoolName.trim(),
+    grade: values.grade.trim(),
+    classroomName: values.classroomName.trim(),
+    shift: values.shift,
+    // The official form writes people's names in capital letters.
+    teacherName: toUpperCase(values.teacherName),
+    term: values.term,
+    schoolDays: values.schoolDays,
+    placeAndDate: `${values.city.trim()}, ${formatLongDate(values.documentDate)}.`,
+    teacherRegistration: values.teacherRegistration.trim(),
+    coordinatorRegistration: values.coordinatorRegistration.trim(),
+    students: getStudentNames(values).map((name) => {
+      const { text, absences } =
+        values.evaluations[getStudentKey(classTermKey, name)] ?? EMPTY_EVALUATION;
+
+      return {
+        name: toUpperCase(name),
+        paragraphs: buildStudentParagraphs(values.commonText, text, name),
+        absences,
+      };
+    }),
+  };
+};

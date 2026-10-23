@@ -16,7 +16,9 @@ import { classDraftReducer } from '@/features/classroom/classDraftSlice';
 import { classroomReducer } from '@/features/classroom/classroomSlice';
 import { sheetStyleReducer } from '@/features/classroom/sheetStyleSlice';
 import { headerImageStorage } from '@/features/reports/headerImageStorage';
+import { phraseBankReducer } from '@/features/reports/phraseBankSlice';
 import { reportSettingsReducer } from '@/features/reports/reportSettingsSlice';
+import { studentEvaluationsReducer } from '@/features/reports/studentEvaluationsSlice';
 import { stateRestored } from '@/store/actions';
 import { moveHeaderImageOut } from '@/store/migrations';
 import { storage } from '@/store/storage';
@@ -26,6 +28,8 @@ const combinedReducer = combineReducers({
   classDraft: classDraftReducer,
   sheetStyle: sheetStyleReducer,
   reportSettings: reportSettingsReducer,
+  studentEvaluations: studentEvaluationsReducer,
+  phraseBank: phraseBankReducer,
   backup: backupReducer,
 });
 
@@ -53,7 +57,15 @@ const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
     // Groups the writes of fast typing; StoreProvider flushes them when the page closes.
     throttle: 300,
     storage,
-    whitelist: ['classroom', 'classDraft', 'sheetStyle', 'reportSettings', 'backup'],
+    whitelist: [
+      'classroom',
+      'classDraft',
+      'sheetStyle',
+      'reportSettings',
+      'studentEvaluations',
+      'phraseBank',
+      'backup',
+    ],
     // Merges each slice with its initial state, so fields added later get their defaults.
     stateReconciler: autoMergeLevel2,
   },
