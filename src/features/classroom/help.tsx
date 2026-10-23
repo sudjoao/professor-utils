@@ -36,5 +36,9 @@ export const DOWNLOAD_HELP = (
       nas notificações ou no app &quot;Arquivos&quot;.
     </li>
     <li>Abra o arquivo e, se quiser, imprima direto dele.</li>
+    <li>
+      Sem Excel ou Word? Clique em &quot;Imprimir ou salvar em PDF&quot;: na janela que abrir,
+      escolha a impressora ou &quot;Salvar como PDF&quot;.
+    </li>
   </ol>
 );

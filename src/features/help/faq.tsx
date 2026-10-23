@@ -21,12 +21,19 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: 'Não tenho Excel nem Word. Consigo abrir os arquivos?',
     answer: (
-      <p>
-        Sim. Dá para abrir no <strong>Google Planilhas</strong> e no{' '}
-        <strong>Google Documentos</strong> (envie o arquivo para o Google Drive e clique duas vezes
-        nele) ou no <strong>LibreOffice</strong>, que é gratuito. No celular, os apps do Excel e do
-        Word também são gratuitos para abrir arquivos.
-      </p>
+      <>
+        <p>
+          Dá até para não precisar deles: no último passo, clique em{' '}
+          <strong>Imprimir ou salvar em PDF</strong>. Na janela que abrir, escolha a impressora ou
+          &quot;Salvar como PDF&quot;.
+        </p>
+        <p>
+          Para abrir os arquivos baixados, use o <strong>Google Planilhas</strong> e o{' '}
+          <strong>Google Documentos</strong> (envie o arquivo para o Google Drive e clique duas
+          vezes nele) ou o <strong>LibreOffice</strong>, que é gratuito. No celular, os apps do
+          Excel e do Word também são gratuitos para abrir arquivos.
+        </p>
+      </>
     ),
   },
   {

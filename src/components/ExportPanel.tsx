@@ -13,9 +13,17 @@ type ExportPanelProps = {
   /** Programs that open the file, e.g. "o Excel (ou Google Planilhas, LibreOffice)". */
   openWith: string;
   fileExport: FileExport;
+  /** Shown next to the download button, e.g. "Imprimir ou salvar em PDF". */
+  secondaryAction?: ReactNode;
 };
 
-export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: ExportPanelProps) => {
+export const ExportPanel = ({
+  summary,
+  downloadLabel,
+  openWith,
+  fileExport,
+  secondaryAction,
+}: ExportPanelProps) => {
   const { visibleErrors, failedAttempts, isExporting, exportError, downloadedFileName } =
     fileExport;
   const { preload } = fileExport;
@@ -89,17 +97,20 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
         </p>
       )}
 
-      <Button
-        size="lg"
-        className="h-12 px-5 text-base"
-        disabled={isExporting}
-        onPointerEnter={preload}
-        onFocus={preload}
-        onClick={fileExport.exportFile}
-      >
-        <Download data-icon="inline-start" className="size-5" />
-        {isExporting ? 'Preparando o arquivo, aguarde...' : downloadLabel}
-      </Button>
+      <div className="flex flex-wrap gap-3">
+        <Button
+          size="lg"
+          className="h-12 px-5 text-base"
+          disabled={isExporting}
+          onPointerEnter={preload}
+          onFocus={preload}
+          onClick={fileExport.exportFile}
+        >
+          <Download data-icon="inline-start" className="size-5" />
+          {isExporting ? 'Preparando o arquivo, aguarde...' : downloadLabel}
+        </Button>
+        {secondaryAction}
+      </div>
 
       <div role="status">
         {downloadedFileName && (

@@ -1,9 +1,11 @@
 'use client';
 
 import { ExportPanel } from '@/components/ExportPanel';
+import { PrintButton } from '@/components/print/PrintButton';
 import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { PrintableSheetView } from '@/features/classroom/components/PrintableSheetView';
 import { SheetStyleField } from '@/features/classroom/components/SheetStyleField';
 import { DOWNLOAD_HELP, SHEET_STYLE_HELP } from '@/features/classroom/help';
 import { GradeColumnsField } from '@/features/grades/components/GradeColumnsField';
@@ -11,6 +13,7 @@ import { GradeColumnsPreview } from '@/features/grades/components/GradeColumnsPr
 import { GradeSettingsField } from '@/features/grades/components/GradeSettingsField';
 import { GRADES_HELP } from '@/features/grades/help';
 import { useGradesForm } from '@/features/grades/hooks/useGradesForm';
+import { buildGradesPrint } from '@/features/grades/services/buildGradesPrint';
 import { workbookToBlob } from '@/lib/excel/workbookToBlob';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
@@ -106,6 +109,18 @@ export const GradesForm = () => {
           downloadLabel="Baixar planilha do Excel"
           openWith="o Excel (ou Google Planilhas, LibreOffice)"
           fileExport={fileExport}
+          secondaryAction={
+            <PrintButton
+              orientation={buildGradesPrint(sheetData).orientation}
+              onBeforePrint={fileExport.validate}
+              renderContent={() => (
+                <PrintableSheetView
+                  sheet={buildGradesPrint(sheetData)}
+                  preferences={sheetStyle.preferences}
+                />
+              )}
+            />
+          }
         />
       </StepCard>
     </div>

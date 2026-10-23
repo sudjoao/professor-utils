@@ -3,6 +3,7 @@
 import { ChoiceCards } from '@/components/ChoiceCards';
 import { ExportPanel } from '@/components/ExportPanel';
 import { FieldGroup, FormField } from '@/components/FormField';
+import { PrintButton } from '@/components/print/PrintButton';
 import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { Input } from '@/components/ui/input';
@@ -13,8 +14,10 @@ import { LessonDatesPreview } from '@/features/attendance/components/LessonDates
 import { WeekdaysField } from '@/features/attendance/components/WeekdaysField';
 import { COLUMN_MODE_CHOICES, MAX_COLUMNS_PER_PAGE } from '@/features/attendance/constants';
 import { LESSONS_HELP } from '@/features/attendance/help';
+import { buildAttendancePrint } from '@/features/attendance/services/buildAttendancePrint';
 import { useAttendanceForm } from '@/features/attendance/hooks/useAttendanceForm';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
+import { PrintableSheetView } from '@/features/classroom/components/PrintableSheetView';
 import { SheetStyleField } from '@/features/classroom/components/SheetStyleField';
 import { DOWNLOAD_HELP, SHEET_STYLE_HELP } from '@/features/classroom/help';
 import { workbookToBlob } from '@/lib/excel/workbookToBlob';
@@ -194,6 +197,18 @@ export const AttendanceForm = () => {
           downloadLabel="Baixar planilha do Excel"
           openWith="o Excel (ou Google Planilhas, LibreOffice)"
           fileExport={fileExport}
+          secondaryAction={
+            <PrintButton
+              orientation={values.columnMode === 'signature' ? 'portrait' : 'landscape'}
+              onBeforePrint={fileExport.validate}
+              renderContent={() => (
+                <PrintableSheetView
+                  sheet={buildAttendancePrint(sheetData)}
+                  preferences={sheetStyle.preferences}
+                />
+              )}
+            />
+          }
         />
       </StepCard>
     </div>

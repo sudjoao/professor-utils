@@ -200,3 +200,43 @@ main:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Printing from the browser ("Imprimir ou salvar em PDF"): only the print root is printed,
+ * one section per page, keeping the sheet colors.
+ */
+@media screen {
+  #print-root {
+    display: none;
+  }
+}
+
+@media print {
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+
+  #print-root {
+    display: block;
+    background: white;
+    color: black;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #print-root .print-page {
+    break-after: page;
+  }
+
+  #print-root .print-page:last-child {
+    break-after: auto;
+  }
+
+  #print-root thead {
+    display: table-header-group;
+  }
+
+  #print-root tr {
+    break-inside: avoid;
+  }
+}

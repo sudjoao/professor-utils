@@ -13,6 +13,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Cópia de segurança** (`/data`, "Meus dados"): salva num arquivo `.json` as turmas, o rascunho, os dados da escola, a aparência das planilhas e a imagem do cabeçalho, e carrega de volta (com "Desfazer") em outro computador; a página inicial lembra de fazer uma cópia a cada 30 dias quando há turmas salvas
 
+- [x] **Imprimir ou salvar em PDF** sem Excel ou Word: as três ferramentas montam a folha para impressão no próprio navegador (mesmas páginas, cores e legenda), e a janela de impressão já oferece "Salvar como PDF"
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -89,6 +91,7 @@ src/
     ExportPanel.tsx     # resumo, erros com links, botão de download e aviso de sucesso
     MobileDownloadBar.tsx # botão de baixar fixo no celular
     UndoNotice.tsx      # aviso com "Desfazer" ao lado da ação (com lib/react/useUndoNotice)
+    print/PrintButton.tsx # "Imprimir ou salvar em PDF": renderiza a folha só para a impressão
     SaveStatus.tsx      # "Salvando... / Salvo neste computador"
     RestoreGate.tsx     # espera os dados salvos no navegador antes de mostrar o formulário
     layout/             # header, navegação, controles de texto e cores, link "pular", container

@@ -6,7 +6,7 @@ import {
   getStudentKey,
 } from '@/features/reports/services/studentEvaluations';
 import type { ReportDocumentData, ReportFormValues } from '@/features/reports/types';
-import { formatLongDate } from '@/lib/date/isoDate';
+import { formatLongDate, isIsoDate } from '@/lib/date/isoDate';
 
 const LINE_BREAK = /\r?\n/;
 const EDGE_BLANK_LINES = /^\s*\n|\n\s*$/g;
@@ -73,5 +73,17 @@ export const buildReportData = (values: ReportFormValues): ReportDocumentData =>
         absences,
       };
     }),
+  };
+};
+
+/**
+ * Like `buildReportData`, for the HTML preview and print, which show the form while it is
+ * still being filled in: without a valid date, the place-and-date line stays blank.
+ */
+export const buildPrintableReportData = (values: ReportFormValues) => {
+  const hasPlaceAndDate = isIsoDate(values.documentDate);
+  return {
+    data: buildReportData(hasPlaceAndDate ? values : { ...values, documentDate: '2000-01-01' }),
+    hasPlaceAndDate,
   };
 };

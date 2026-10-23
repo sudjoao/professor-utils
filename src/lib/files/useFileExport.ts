@@ -25,13 +25,21 @@ export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExpo
   // Stable while `preload` is (a module-level loader), so effects can depend on it.
   const preloadFile = useCallback(() => void preload?.().catch(ignoreError), [preload]);
 
-  const exportFile = async () => {
+  /** Shows the errors (and brings the teacher to them); `true` when there are none. */
+  const validate = (): boolean => {
     setHasTriedExport(true);
     setExportError('');
     setDownloadedFileName('');
 
     if (errors.length > 0) {
       setFailedAttempts((count) => count + 1);
+      return false;
+    }
+    return true;
+  };
+
+  const exportFile = async () => {
+    if (!validate()) {
       return;
     }
 
@@ -56,6 +64,7 @@ export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExpo
     exportError,
     downloadedFileName,
     exportFile,
+    validate,
     // A failed preload is not a problem: the download tries again, and reports errors itself.
     preload: preloadFile,
   };

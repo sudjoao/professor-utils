@@ -5,12 +5,14 @@ import { useState } from 'react';
 import { ChoiceCards } from '@/components/ChoiceCards';
 import { ExportPanel } from '@/components/ExportPanel';
 import { FieldGroup } from '@/components/FormField';
+import { PrintButton } from '@/components/print/PrintButton';
 import { SaveStatus } from '@/components/SaveStatus';
 import { StepCard } from '@/components/StepCard';
 import { ClassroomCard } from '@/features/classroom/components/ClassroomCard';
 import { DOWNLOAD_HELP } from '@/features/classroom/help';
 import { CommonTextField } from '@/features/reports/components/CommonTextField';
 import { HeaderImageField } from '@/features/reports/components/HeaderImageField';
+import { ReportPage } from '@/features/reports/components/ReportPage';
 import { ReportPreview } from '@/features/reports/components/ReportPreview';
 import { StudentEvaluationsField } from '@/features/reports/components/StudentEvaluationsField';
 import { TermFields } from '@/features/reports/components/TermFields';
@@ -23,6 +25,7 @@ import {
 } from '@/features/reports/help';
 import { useReportForm } from '@/features/reports/hooks/useReportForm';
 import { REPORT_SETTINGS_KEYS } from '@/features/reports/reportSettingsSlice';
+import { buildPrintableReportData } from '@/features/reports/services/buildReportData';
 import { useFileExport } from '@/lib/files/useFileExport';
 import { pluralize } from '@/lib/text/pluralize';
 import { toFileName } from '@/lib/text/slugify';
@@ -236,6 +239,25 @@ export const ReportsForm = () => {
               : 'o Word (ou Google Documentos, LibreOffice)'
           }
           fileExport={fileExport}
+          secondaryAction={
+            <PrintButton
+              orientation="portrait"
+              onBeforePrint={fileExport.validate}
+              renderContent={() => {
+                const { data, hasPlaceAndDate } = buildPrintableReportData(values);
+                return data.students.map((student, index) => (
+                  <ReportPage
+                    key={`${index}-${student.name}`}
+                    data={data}
+                    student={student}
+                    headerImage={values.headerImage}
+                    hasPlaceAndDate={hasPlaceAndDate}
+                    isPrint
+                  />
+                ));
+              }}
+            />
+          }
         />
       </StepCard>
     </div>
