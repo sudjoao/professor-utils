@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useStudentListTools } from '@/features/classroom/hooks/useStudentListTools';
-import { ACCEPTED_STUDENT_FILES } from '@/features/classroom/services/readStudentFile';
+import {
+  ACCEPTED_STUDENT_FILES,
+  preloadStudentFileReader,
+} from '@/features/classroom/services/readStudentFile';
 import { fieldId } from '@/lib/forms/formErrors';
 import { pluralize } from '@/lib/text/pluralize';
 import { cn } from '@/lib/utils';
@@ -135,6 +138,8 @@ export const StudentsField = ({
         size="lg"
         className="h-10"
         disabled={tools.isReadingFile}
+        onPointerEnter={preloadStudentFileReader}
+        onFocus={preloadStudentFileReader}
         onClick={() => fileInputRef.current?.click()}
       >
         <FileSpreadsheet data-icon="inline-start" />

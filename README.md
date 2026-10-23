@@ -28,6 +28,12 @@ A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
 
 Ao criar telas novas, use os componentes de `src/components` (abaixo) em vez de montar label/erro à mão, e prefira `ChoiceCards`/`OptionButtons` a abas para escolhas.
 
+## Desempenho e uso sem internet
+
+- **App instalável e offline**: `src/app/manifest.ts` + `public/sw.js` (registrado só em produção). Depois da primeira visita, as páginas e os arquivos do app ficam guardados: dá para abrir, navegar e gerar as planilhas sem internet. Ao mudar a estratégia de cache, suba `VERSION` em `sw.js`.
+- **ExcelJS e docx** só baixam quando o passo de baixar chega perto da tela (ou ao passar o mouse no botão), e não ao abrir a página.
+- **Gravação no navegador**: o redux-persist grava com `throttle` e salva o que falta ao fechar a página (`pagehide`). A imagem do cabeçalho fica numa chave própria (`createStoredValue`), para não ser regravada a cada tecla.
+
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router) + TypeScript

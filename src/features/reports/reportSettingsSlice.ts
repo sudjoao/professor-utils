@@ -14,7 +14,6 @@ export const INITIAL_REPORT_SETTINGS: ReportSettings = {
   city: '',
   teacherRegistration: '',
   coordinatorRegistration: '',
-  headerImage: null,
 };
 
 export const REPORT_SETTINGS_KEYS = Object.keys(

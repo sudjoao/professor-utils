@@ -13,6 +13,9 @@ export type StudentFileResult =
 const getExtension = (fileName: string): string =>
   fileName.slice(fileName.lastIndexOf('.') + 1).toLowerCase();
 
+/** Starts downloading ExcelJS when the teacher is about to pick a spreadsheet. */
+export const preloadStudentFileReader = () => void import('exceljs').catch(() => undefined);
+
 /** Rows of the first sheet with content, each cell as the text Excel shows. */
 const readExcelRows = async (file: File): Promise<string[][]> => {
   // ExcelJS is heavy, so it is only downloaded when the teacher opens a spreadsheet.

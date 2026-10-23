@@ -18,6 +18,9 @@ import { toFileName } from '@/lib/text/slugify';
 
 const TOTAL_STEPS = 5;
 
+// docx is heavy: it downloads only when the download step comes near (see ExportPanel).
+const loadReportGenerator = () => import('@/features/reports/services/generateReportFile');
+
 const SCHOOL_FIELDS: TextField[] = [
   {
     name: 'regionalCoordination',
@@ -54,20 +57,31 @@ const SIGNATURE_FIELDS: TextField[] = [
 ];
 
 export const ReportsForm = () => {
-  const { values, updateValues, studentNames, errors, currentTerm, isSchoolDaysFromCalendar } =
-    useReportForm();
+  const {
+    values,
+    updateValues,
+    saveHeaderImage,
+    studentNames,
+    errors,
+    currentTerm,
+    isSchoolDaysFromCalendar,
+  } = useReportForm();
 
   const fileExport = useFileExport({
     errors,
     fileName: `${toFileName('RAv', `${values.term}º bimestre`, values.classroomName)}.docx`,
     buildFile: async () => {
-      // docx is heavy, so it is only downloaded when the teacher exports.
-      const { generateReportFile } = await import('@/features/reports/services/generateReportFile');
+      const { generateReportFile } = await loadReportGenerator();
       return generateReportFile(values);
     },
+    preload: loadReportGenerator,
   });
   const visibleErrors = fileExport.visibleErrors;
-  const savedSettings = JSON.stringify(REPORT_SETTINGS_KEYS.map((key) => values[key]));
+  const savedSettings = JSON.stringify([
+    ...REPORT_SETTINGS_KEYS.map((key) => values[key]),
+    // The length is enough to notice a new image, without comparing ~1 MB of text.
+    values.headerImage?.length,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -119,10 +133,7 @@ export const ReportsForm = () => {
           errors={visibleErrors}
           onChange={updateValues}
         />
-        <HeaderImageField
-          headerImage={values.headerImage}
-          onChange={(headerImage) => updateValues({ headerImage })}
-        />
+        <HeaderImageField headerImage={values.headerImage} onChange={saveHeaderImage} />
       </StepCard>
 
       <StepCard step={4} totalSteps={TOTAL_STEPS} title="Texto da avaliação" help={EVALUATION_HELP}>

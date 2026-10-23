@@ -18,8 +18,29 @@ type ExportPanelProps = {
 export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: ExportPanelProps) => {
   const { visibleErrors, failedAttempts, isExporting, exportError, downloadedFileName } =
     fileExport;
+  const { preload } = fileExport;
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Starts downloading the file libraries a bit before the teacher reaches this step.
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          preload();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px' },
+    );
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [preload]);
 
   // A blocked download brings the teacher to the list of what is missing.
   useEffect(() => {
@@ -72,6 +93,8 @@ export const ExportPanel = ({ summary, downloadLabel, openWith, fileExport }: Ex
         size="lg"
         className="h-12 px-5 text-base"
         disabled={isExporting}
+        onPointerEnter={preload}
+        onFocus={preload}
         onClick={fileExport.exportFile}
       >
         <Download data-icon="inline-start" className="size-5" />

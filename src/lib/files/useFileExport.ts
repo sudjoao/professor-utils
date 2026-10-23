@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { downloadBlob } from '@/lib/files/downloadBlob';
 import type { FormError } from '@/lib/forms/formErrors';
@@ -9,14 +9,21 @@ type FileExportOptions = {
   fileName: string;
   /** Builds the file lazily, so heavy libraries (ExcelJS, docx) only load when the teacher exports. */
   buildFile: () => Promise<Blob>;
+  /** Downloads those libraries ahead of time, when the download step comes near. */
+  preload?: () => Promise<unknown>;
 };
 
-export const useFileExport = ({ errors, fileName, buildFile }: FileExportOptions) => {
+const ignoreError = () => undefined;
+
+export const useFileExport = ({ errors, fileName, buildFile, preload }: FileExportOptions) => {
   const [hasTriedExport, setHasTriedExport] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState('');
   const [downloadedFileName, setDownloadedFileName] = useState('');
+
+  // Stable while `preload` is (a module-level loader), so effects can depend on it.
+  const preloadFile = useCallback(() => void preload?.().catch(ignoreError), [preload]);
 
   const exportFile = async () => {
     setHasTriedExport(true);
@@ -49,6 +56,8 @@ export const useFileExport = ({ errors, fileName, buildFile }: FileExportOptions
     exportError,
     downloadedFileName,
     exportFile,
+    // A failed preload is not a problem: the download tries again, and reports errors itself.
+    preload: preloadFile,
   };
 };
 

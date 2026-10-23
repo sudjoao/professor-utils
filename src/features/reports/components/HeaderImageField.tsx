@@ -9,7 +9,8 @@ import { readAsDataUrl } from '@/lib/files/readAsDataUrl';
 
 type HeaderImageFieldProps = {
   headerImage: string | null;
-  onChange: (headerImage: string | null) => void;
+  /** Returns `false` when the browser could not keep the image. */
+  onChange: (headerImage: string | null) => boolean;
 };
 
 export const HeaderImageField = ({ headerImage, onChange }: HeaderImageFieldProps) => {
@@ -32,8 +33,12 @@ export const HeaderImageField = ({ headerImage, onChange }: HeaderImageFieldProp
       return;
     }
 
-    setError('');
-    onChange(await readAsDataUrl(file));
+    const isSaved = onChange(await readAsDataUrl(file));
+    setError(
+      isSaved
+        ? ''
+        : 'Este navegador não tem espaço para guardar essa imagem. Escolha uma imagem menor.',
+    );
   };
 
   return (

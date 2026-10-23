@@ -18,6 +18,9 @@ import { toFileName } from '@/lib/text/slugify';
 
 const TOTAL_STEPS = 4;
 
+// ExcelJS is heavy: it downloads only when the download step comes near (see ExportPanel).
+const loadWorkbookBuilder = () => import('@/features/grades/services/buildGradesWorkbook');
+
 export const GradesForm = () => {
   const { values, updateValues, sheetData, sheetStyle, errors, summaryColumnTitle } =
     useGradesForm();
@@ -26,10 +29,10 @@ export const GradesForm = () => {
     errors,
     fileName: `${toFileName('Lista de notas', values.classroomName)}.xlsx`,
     buildFile: async () => {
-      const { buildGradesWorkbook } =
-        await import('@/features/grades/services/buildGradesWorkbook');
+      const { buildGradesWorkbook } = await loadWorkbookBuilder();
       return workbookToBlob(buildGradesWorkbook(sheetData));
     },
+    preload: loadWorkbookBuilder,
   });
   const visibleErrors = fileExport.visibleErrors;
 

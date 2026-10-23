@@ -17,8 +17,6 @@ export type ReportSettings = {
   city: string;
   teacherRegistration: string;
   coordinatorRegistration: string;
-  /** Uploaded header image as a data URL; `null` uses the default DF coat of arms. */
-  headerImage: string | null;
 };
 
 export type ReportFormValues = ClassFormValues &
@@ -26,6 +24,8 @@ export type ReportFormValues = ClassFormValues &
     schoolYear: string;
     documentDate: IsoDate;
     commonText: string;
+    /** Uploaded header image as a data URL; `null` uses the default DF coat of arms. */
+    headerImage: string | null;
   };
 
 export type StudentReport = {

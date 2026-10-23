@@ -23,6 +23,9 @@ import { toFileName } from '@/lib/text/slugify';
 
 const TOTAL_STEPS = 4;
 
+// ExcelJS is heavy: it downloads only when the download step comes near (see ExportPanel).
+const loadWorkbookBuilder = () => import('@/features/attendance/services/buildAttendanceWorkbook');
+
 export const AttendanceForm = () => {
   const form = useAttendanceForm();
   const { values, sheetData, sheetStyle, pageCount } = form;
@@ -31,10 +34,10 @@ export const AttendanceForm = () => {
     errors: form.errors,
     fileName: `${toFileName('Lista de chamada', values.classroomName)}.xlsx`,
     buildFile: async () => {
-      const { buildAttendanceWorkbook } =
-        await import('@/features/attendance/services/buildAttendanceWorkbook');
+      const { buildAttendanceWorkbook } = await loadWorkbookBuilder();
       return workbookToBlob(buildAttendanceWorkbook(sheetData));
     },
+    preload: loadWorkbookBuilder,
   });
   const errors = fileExport.visibleErrors;
 
