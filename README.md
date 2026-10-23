@@ -66,14 +66,15 @@ pnpm install
 pnpm dev          # http://localhost:3000
 ```
 
-| Script           | O que faz                                      |
-| ---------------- | ---------------------------------------------- |
-| `pnpm dev`       | Servidor de desenvolvimento                    |
-| `pnpm build`     | Build de produção                              |
-| `pnpm lint`      | ESLint (`pnpm lint:fix` corrige o que der)     |
-| `pnpm typecheck` | Gera os tipos de rota do Next e roda o `tsc`   |
-| `pnpm test`      | Testes com Vitest (`pnpm test:watch` em watch) |
-| `pnpm format`    | Formata o código com Prettier                  |
+| Script           | O que faz                                                                        |
+| ---------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev`       | Servidor de desenvolvimento                                                      |
+| `pnpm build`     | Build de produção                                                                |
+| `pnpm lint`      | ESLint (`pnpm lint:fix` corrige o que der)                                       |
+| `pnpm typecheck` | Gera os tipos de rota do Next e roda o `tsc`                                     |
+| `pnpm test`      | Testes com Vitest (`pnpm test:watch` em watch)                                   |
+| `pnpm test:e2e`  | Testes ponta a ponta no navegador (Playwright + auditoria de acessibilidade axe) |
+| `pnpm format`    | Formata o código com Prettier                                                    |
 
 ## Estrutura
 
@@ -129,6 +130,14 @@ Novos componentes do shadcn: `pnpm dlx shadcn@latest add <componente>`.
 - Estado global só para o que precisa ser compartilhado ou persistido; estado de formulário fica local no componente.
 - Nomes que dizem o que a coisa faz, funções pequenas e com uma responsabilidade.
 - Testes ao lado do arquivo testado: `algo.ts` → `algo.test.ts`.
+
+## Testes ponta a ponta
+
+`e2e/` tem testes que abrem o app de verdade no navegador (Playwright): auditoria de acessibilidade WCAG 2.2 AA (axe) em todas as páginas, no computador e no celular e nos temas escuro e de alto contraste, e os fluxos principais (erros, download da chamada, turma compartilhada, lista colada, relatório com avaliações, cópia de segurança). A data do navegador fica fixa em 23/10/2026, para o calendário não mudar os resultados.
+
+Na primeira vez, instale o navegador: `pnpm exec playwright install --only-shell chromium`. O `pnpm test:e2e` faz o build e sobe o app sozinho (porta 3100).
+
+O CI (`.github/workflows/ci.yml`) roda lint, tipos, formatação, testes unitários e ponta a ponta em cada push na `main` e em cada PR.
 
 ## Deploy
 
