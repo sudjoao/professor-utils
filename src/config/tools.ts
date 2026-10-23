@@ -1,4 +1,11 @@
-import { ClipboardCheck, FileText, GraduationCap, type LucideIcon, Tags } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Dices,
+  FileText,
+  GraduationCap,
+  type LucideIcon,
+  Tags,
+} from 'lucide-react';
 
 /** The main tools have their own link in the header; the others are listed on the home page. */
 export type ToolGroup = 'main' | 'other';
@@ -51,6 +58,15 @@ export const TOOLS = {
       'Etiquetas com o nome de cada aluno para cadernos, pastas e livros, em folhas A4 de etiquetas ou papel comum.',
     result: 'uma folha pronta para imprimir, com uma etiqueta para cada aluno.',
     icon: Tags,
+  },
+  draw: {
+    href: '/draw',
+    group: 'other',
+    title: 'Sorteio e grupos',
+    description:
+      'Sorteie um aluno sem repetir ou forme grupos equilibrados só com quem está na sala.',
+    result: 'o nome sorteado em letras grandes e os grupos prontos para copiar ou imprimir.',
+    icon: Dices,
   },
 } satisfies Record<string, Tool>;
 

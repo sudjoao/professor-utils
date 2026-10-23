@@ -17,6 +17,8 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 
 - [x] **Etiquetas com nomes**: para folhas A4 de etiquetas comuns (21, 14 ou 16 por folha, medidas Pimaco/Avery) ou papel comum para recortar, com várias por aluno, turma, disciplina ou outro texto, e "começar na etiqueta nº" para reaproveitar folhas
 
+- [x] **Sorteio e grupos**: marca quem faltou, sorteia um aluno (sem repetir até todos saírem) e forma grupos equilibrados por quantidade ou tamanho, para copiar ou imprimir
+
 ## Público e acessibilidade
 
 A maior parte das pessoas que usam o app tem 50 anos ou mais. Por isso:
@@ -78,6 +80,7 @@ src/
                         #   e layout base das planilhas (classSheet)
     backup/             # cópia de segurança dos dados do navegador (salvar e carregar .json)
     labels/             # etiquetas com nomes (folhas A4 de etiquetas, medidas em mm)
+    draw/               # sorteio de aluno e formação de grupos
     attendance/         # lista de chamada
     grades/             # lista de notas
     reports/            # relatórios (RAv); textos oficiais em services/officialTexts.ts
