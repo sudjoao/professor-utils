@@ -8,6 +8,7 @@ Ferramentas simples para facilitar o dia a dia do professor: gerar listas de cha
 - [x] **Lista de notas**: planilha para lançar as notas, com colunas por quantidade ("Nota 1", "Nota 2"...) ou pelo título de cada avaliação, coluna final de média ou soma calculada pelo Excel e validação de 0 até a nota máxima
 - [x] **Relatórios (RAv – Registro de Avaliação)**: gera em Word (`.docx`) o Formulário 1 da SEEDF para a turma inteira, um aluno por página, com cabeçalho (brasão), dados da escola, turma, turno, bimestre, dias letivos, local/data e matrículas já preenchidos. O professor só escreve a avaliação e o total de faltas; opcionalmente, um texto comum com `[ALUNO]` é repetido para cada aluno com o nome dele. Os dados da escola ficam salvos no navegador
 - [x] **Aparência das planilhas**: paletas de cores prontas (cabeçalho e linhas alternadas), opção sem linhas alternadas e letra grande, com prévia; a escolha vale para chamada e notas e fica salva
+- [x] **Lista de alunos de qualquer jeito**: ao colar, saem números, matrículas, datas e o título da coluna, e de uma tabela do Excel fica só a coluna dos nomes (com "Desfazer"); também abre .xlsx e .csv (inclusive CSV do Excel em Windows-1252) e passa nomes em MAIÚSCULAS para "Ana Souza"
 - [x] **Turma compartilhada**: turma, disciplina, professor(a) e alunos ficam salvos como rascunho e já aparecem preenchidos nas três ferramentas, inclusive depois de recarregar a página
 
 ## Público e acessibilidade
